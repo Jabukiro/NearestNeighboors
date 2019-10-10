@@ -30,5 +30,12 @@ function testDistanceChebyshev()
 	luaunit.assertEquals(dist, 4)
 end
 
+-- Test 'loadcsv.weights'. Should return table containing normalised weights
+-- TODO: Update test to test for nomalised weights
+function testDistanceWeights()
+	weights = {1, 1/2, 1/3, 1/4}
+	luaunit.assertEquals(distance.weights(4), weights)
+end 
+-- passed 11:30 on 10/10/19
 os.exit(luaunit.LuaUnit.run())
 -- last edit 12:33 10/10/19

@@ -3,7 +3,12 @@
 -- -----------------------------------------------------------------------------------
 
 local math = require("math")
-
+-- Adding nth sum series to math library
+function math.nsum(n)
+	sum = 0
+	for i = 1, 1000 do sum = sum + 1/i^2 end
+	return sum
+end
 local distance={}
 
 function distance.euclidean(p1, p2)
@@ -32,5 +37,18 @@ function distance.chebyshev(p1, p2)
 	return math.max(distx, disty)
 end
 -- Passed test 01:16 10/10/19
+
+function distance.weights(k)
+	weights = {}
+	for i=1, k, -1 do
+		weights[i] = 1/i
+	end
+	return weights
+end
+
+function 
+function distance.classify(selected, data, k)
+	weights = distance.weights(k)
+end
 
 return distance
