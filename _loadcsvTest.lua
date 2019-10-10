@@ -5,14 +5,18 @@
 luaunit = require("luaunit")
 loadcsv = require("loadcsv")
 
-path = './knn.csv'
+path = './test.csv'
 noPath = 'blo'
 pathNotProperFormat = './fake.csv'
 
 -- Test 'loadcsv.open'
 function testLoadCSVOpenSuccess()
-	result = loadcsv.open(path)
-	luaunit.assertEquals(result, "File succesfully opened for reading.")
+	expData = {
+		{x="1", y="1", class="a"},
+		{x="2", y="2", class="b"}
+	}
+	data = loadcsv.open(path)
+	luaunit.assertEquals(data, expData)
 end
 
 -- Test 'loadcsv.open'. Should return error if given file that it cannot open.
@@ -23,8 +27,8 @@ end
 -- Test 'loadcsv.open'. Should return error if given file that
 -- Doesn't have the proper format (x,y,class)
 function testLoadCSVOpenFormat()
-	error = loadcsv.open(pathNotProperFormat)
-	luaunit.assertErrorMsgContains(error, "File doesn't have specified format")
+	luaunit.assertErrorMsgContains("File doesn't match specified format.", loadcsv.open, 
+									pathNotProperFormat)
 end
 
 os.exit(luaunit.LuaUnit.run())
