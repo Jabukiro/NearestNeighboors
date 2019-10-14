@@ -30,12 +30,46 @@ function testDistanceChebyshev()
 	luaunit.assertEquals(dist, 4)
 end
 
--- Test 'loadcsv.weights'. Should return table containing normalised weights
+-- Test 'distance.weights'. Should return table containing normalised weights
 -- TODO: Update test to test for nomalised weights
 function testDistanceWeights()
-	weights = {1, 1/2, 1/3, 1/4}
-	luaunit.assertEquals(distance.weights(4), weights)
-end 
+	luaunit.assertEquals(distance.weights(4), {1, 1/2, 1/3, 1/4})
+end
 -- passed 11:30 on 10/10/19
+
+-- Test 'distance.sortNearest'
+expData = {
+	{x="1", y="1", class="a"},
+	{x="2", y="2", class="b"}
+}
+
+function testDistanceOrderedInsert()
+	list = {
+			{dist=math.sqrt( 2 ), class='a', x=1, y=1},
+			{dist=math.sqrt( 8 ), class='b', x=2, y=2}
+			}
+
+	insert= {dist=1, class='a', x=0, y=1}
+	
+	expected = {
+				{dist=1, class='a', x=0, y=1},
+				{dist=math.sqrt( 2 ), class='a', x=1, y=1},
+				{dist=math.sqrt( 8 ), class='b', x=2, y=2}
+				}
+	--expected = {next = expected, value = {dist=1, class='a', x=0, y=1}}
+
+	luaunit.assertEquals(distance.orderedInsert(list, insert), expected)
+end
+
+--[[
+function testDistanceSortNearest()
+	point = {x=0, y=0}
+	luaunit.assertEquals(distance.sortNearest(point, expData, 2), {
+																	{dist = math.sqrt(2),class="a"}, 
+																	{dist=math.sqrt(8), class="b"}
+																	})
+end
+--]]
+
 os.exit(luaunit.LuaUnit.run())
 -- last edit 12:33 10/10/19
