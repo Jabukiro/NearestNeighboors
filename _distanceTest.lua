@@ -1,5 +1,6 @@
 -- -----------------------------------------------------------------------------------
 -- Unit testing for 'distance' module
+-- luaunit framework used
 -- -----------------------------------------------------------------------------------
 
 luaunit = require("luaunit")
@@ -43,6 +44,7 @@ expData = {
 	{x="2", y="2", class="b"}
 }
 
+
 function testDistanceOrderedInsert()
 	list = {
 			{dist=math.sqrt( 2 ), class='a', x=1, y=1},
@@ -61,8 +63,15 @@ function testDistanceOrderedInsert()
 	luaunit.assertEquals(distance.orderedInsert(list, insert), expected)
 end
 
+
 function testDistanceClassify()
-	luaunit.assertEquals(distance.classify(expected), 'a')
+	data = {
+		{dist=1, class='b', x=2, y=2},
+		{dist=1, class='a', x=0, y=1},
+		{dist=2, class='a', x=1, y=1},
+		{dist=1, class='b', x=2, y=2}
+		}
+	luaunit.assertEquals(distance.classify(data), 'b')
 end
 
 os.exit(luaunit.LuaUnit.run())

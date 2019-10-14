@@ -3,6 +3,8 @@
 -- 
 -- Implements the 3 distance metrics calculation for the Application
 -- Euclidean, Manhattan, Chebyshev.
+-- TODO: GUard against selecting point that is within data already.
+-- Simply return class of point. Otherwise division by zero might occur in classification
 -- -----------------------------------------------------------------------------------
 
 local math = require("math")
@@ -48,7 +50,7 @@ function distance.weights(k)
 	return weights
 end
 
-function distance.orderedInsert(table, insert)
+function distance.orderedInsert(sortedData, insert)
 	--TODO: make local after unit tests.
 	--Simple algorithm to insert items in a sorted manner.
 	--Note: As the 'b' class is more numerous, it was chosen that if-
@@ -58,8 +60,7 @@ function distance.orderedInsert(table, insert)
 	------- !!This is implemented implicitely by using the fact that class 'b' points
 	------- come after class 'a' points in orginal csv file.!!
 
-	newTable = table --What will be returned
-	local iter, tableRef, index = pairs(table)
+	local iter, tableRef, index = pairs(sortedData)
 	while true do
 		local currIndex, point = iter(tableRef, index)
 		if point == nil then
@@ -68,23 +69,23 @@ function distance.orderedInsert(table, insert)
 			--with the new element as single member 
 			
 			currIndex = index or 0 --Either index will be the greatest index value or will be nil.
-			table[index+1] = insert --Hence we'll insert at a new index or at the first index for an empty table.
-			return table
+			sortedData[index+1] = insert --Hence we'll insert at a new index or at the first index for an empty table.
+			return sortedData
 
 		elseif insert.dist < point.dist then
 			--INVESTIGATE: Does this copy by value or reference.
 			--Should be reference
-			local previous = table[currIndex] -- Element that will be 'pushed' into the next index.
-			table[currIndex] = insert --Insert new element at the current Index
+			local previous = sortedData[currIndex] -- Element that will be 'pushed' into the next index.
+			sortedData[currIndex] = insert --Insert new element at the current Index
 
-			for i = currIndex+1, #table+1 do
+			for i = currIndex+1, #sortedData+1 do
 				-- 'Push' all next element to +1 of their current index
 				-- Note iterator will not run if the currIndex was the last index of table.
-				nextInsert = table[i]
-				table[i] = previous
+				nextInsert = sortedData[i]
+				sortedData[i] = previous
 				previous = nextInsert
 			end
-			return table
+			return sortedData
 		end
 		index = currIndex
 	
@@ -93,7 +94,43 @@ function distance.orderedInsert(table, insert)
 	end
 end
 
-function distance.classify(data, k)
+function distance.classify(data)
+	--Returns class that wins the weighted popular vote
+	--Distance is used to give weight to each point
+	--Nearest points given more weight
+	-- Assumes that its a binary classification
+	-- And the classes are 'a' and 'b'
+	-- TODO update loadcsv to reflect above
+	winner = nil
+	local a=0
+	local w_a=0
+	local b=0
+	local w_b=0
+	for _, point in pairs(data) do
+		if point.class=='a' then
+			a = a +1
+			w_a = w_a + (1/point.dist)
+		elseif point.class=='b' then
+			b = b+1
+			w_b = w_b + (1/point.dist)
+		else 
+			error("Unkown class: '"..point.class.."' present in data.")
+		end
+	end
+	if w_a == w_b then 
+		if a==b then
+			--Randorm decision Needed
+			return 'Level 2 tie. Random decision not yet implemented.'
+		else
+			winner = (a>b and 'a') or (b>a and 'b') --Will return name of class that is most present, since weighted score is the same.
+			return winner
+		end
+	else 
+		winner = (w_a >w_b and 'a') or (w_b>w_a and 'b') --Will return class that has the best weighted score.
+		return winner
+	end
+
+end
 
 function distance.main(selected, data, k, metric)
 	--No unit test as it is simply a mix of three other functions
@@ -103,10 +140,8 @@ function distance.main(selected, data, k, metric)
 	--Uses a specified metric
 
 	local metric = metric or 'euclidean' --Default metric distance.
-	local table = {} 	-- Will be a linked-list of the data points distance from selected point
-						-- as well as class, ordered from furthest to nearest point (O(n) time complexity).
-						-- head value is the furthest away point
-	local temp_list = nil
+	local sortedData = {}
+
 
 	--To reduce repeated code, The relevant function will be assigned
 	--To metricFun(). 
@@ -126,7 +161,7 @@ function distance.main(selected, data, k, metric)
 		dist = metricFun(selected, point) --Distance calculated by chosen metric.
 		point_class = {dist=dist, class=point.class, x=point.x, y=point.y}
 
-		table = distance.orderedInsert(list, point_class) --Insert so that the list is in an Ascending manner.
+		sortedData = distance.orderedInsert(sortedData, point_class) --Insert so that the list is in an Ascending manner.
 	end
 
 	--TODO: Classification using weigths
