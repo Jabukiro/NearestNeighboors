@@ -61,15 +61,9 @@ function testDistanceOrderedInsert()
 	luaunit.assertEquals(distance.orderedInsert(list, insert), expected)
 end
 
---[[
-function testDistanceSortNearest()
-	point = {x=0, y=0}
-	luaunit.assertEquals(distance.sortNearest(point, expData, 2), {
-																	{dist = math.sqrt(2),class="a"}, 
-																	{dist=math.sqrt(8), class="b"}
-																	})
+function testDistanceClassify()
+	luaunit.assertEquals(distance.classify(expected), 'a')
 end
---]]
 
 os.exit(luaunit.LuaUnit.run())
 -- last edit 12:33 10/10/19
