@@ -71,7 +71,7 @@ function testDistanceClassify()
 		{dist=2, class='a', x=1, y=1},
 		{dist=1, class='b', x=2, y=2}
 		}
-	luaunit.assertEquals(distance.classify(data), 'b')
+	luaunit.assertEquals(distance.classify(data, #data), 'b')
 end
 
 os.exit(luaunit.LuaUnit.run())

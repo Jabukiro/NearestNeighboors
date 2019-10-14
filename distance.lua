@@ -94,19 +94,20 @@ function distance.orderedInsert(sortedData, insert)
 	end
 end
 
-function distance.classify(data)
+function distance.classify(data, k)
 	--Returns class that wins the weighted popular vote
 	--Distance is used to give weight to each point
 	--Nearest points given more weight
-	-- Assumes that its a binary classification
-	-- And the classes are 'a' and 'b'
+	--Assumes data already sorted.
+	-- Assumes that its a binary classification-
+	-- and the classes are 'a' and 'b'
 	-- TODO update loadcsv to reflect above
 	winner = nil
 	local a=0
 	local w_a=0
 	local b=0
 	local w_b=0
-	for _, point in pairs(data) do
+	for index, point in pairs(data) do
 		if point.class=='a' then
 			a = a +1
 			w_a = w_a + (1/point.dist)
@@ -116,6 +117,7 @@ function distance.classify(data)
 		else 
 			error("Unkown class: '"..point.class.."' present in data.")
 		end
+		if index == k then break end --K data-points already considered.
 	end
 	if w_a == w_b then 
 		if a==b then
@@ -133,9 +135,10 @@ function distance.classify(data)
 end
 
 function distance.main(selected, data, k, metric)
+	--Only function that needs to be called by the app.
+
 	--No unit test as it is simply a mix of three other functions
 	--Metric - Weights - OrderedInsert
-
 	--Sorts the data points from nearest to furthest away of 
 	--Uses a specified metric
 
@@ -165,7 +168,7 @@ function distance.main(selected, data, k, metric)
 	end
 
 	--TODO: Classification using weigths
-
+	class_winner = distance.classify(sortedData, k)
 
 end
 
