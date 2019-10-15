@@ -12,9 +12,9 @@ local math = require("math")
 function math.nthsum(n)
 	return n*(n+1)/2
 end
-local distance={}
+local classify={}
 
-function distance.euclidean(p1, p2)
+function classify.euclidean(p1, p2)
 	
 	local distx2 = (p1.x + p2.x)^2
 	local disty2 = (p1.y + p2.y)^2
@@ -25,7 +25,7 @@ end
 
 -- Passed test 12:31 am 10/10/19
 
-function distance.manhattan(p1, p2)
+function classify.manhattan(p1, p2)
 	local distx = math.abs(p1.x-p2.x)
 	local disty = math.abs(p1.y-p2.y)
 
@@ -33,7 +33,7 @@ function distance.manhattan(p1, p2)
 end
 -- Passed test 01:01 10/10/19
 
-function distance.chebyshev(p1, p2)
+function classify.chebyshev(p1, p2)
 	local distx = math.abs(p1.x-p2.x)
 	local disty = math.abs(p1.y-p2.y)
 
@@ -41,7 +41,7 @@ function distance.chebyshev(p1, p2)
 end
 -- Passed test 01:16 10/10/19
 
-function distance.weights(k)
+function classify.weights(k)
 	--Weights used for classification.
 	weights = {}
 	for i=1, k do
@@ -50,7 +50,7 @@ function distance.weights(k)
 	return weights
 end
 
-function distance.orderedInsert(sortedData, insert)
+function classify.orderedInsert(sortedData, insert)
 	--TODO: make local after unit tests.
 	--Simple algorithm to insert items in a sorted manner.
 	--Note: As the 'b' class is more numerous, it was chosen that if-
@@ -94,7 +94,7 @@ function distance.orderedInsert(sortedData, insert)
 	end
 end
 
-function distance.classify(data, k)
+function classify.classify(data, k)
 	--Returns class that wins the weighted popular vote
 	--Distance is used to give weight to each point
 	--Nearest points given more weight
@@ -134,7 +134,7 @@ function distance.classify(data, k)
 
 end
 
-function distance.main(selected, data, k, metric)
+function classify.main(selected, data, k, metric)
 	--Only function that needs to be called by the app.
 
 	--No unit test as it is simply a mix of three other functions
@@ -150,11 +150,11 @@ function distance.main(selected, data, k, metric)
 	--To metricFun(). 
 	--This way we need not repeat the same code for each possible function.
 	if metric == 'euclidean' then
-		metricFun = distance.euclidean
+		metricFun = classify.euclidean
 	elseif metric == 'manhattan' then
-		metricFun = distance.manhattan
+		metricFun = classify.manhattan
 	elseif metric == 'chebyshev' then
-		metricFun = distance.chebyshev
+		metricFun = classify.chebyshev
 	else
 		error('Wrong metric choice given: "'.. metric .. '"')
 	end
@@ -164,12 +164,12 @@ function distance.main(selected, data, k, metric)
 		dist = metricFun(selected, point) --Distance calculated by chosen metric.
 		point_class = {dist=dist, class=point.class, x=point.x, y=point.y}
 
-		sortedData = distance.orderedInsert(sortedData, point_class) --Insert so that the list is in an Ascending manner.
+		sortedData = classify.orderedInsert(sortedData, point_class) --Insert so that the list is in an Ascending manner.
 	end
 
 	--TODO: Classification using weigths
-	class_winner = distance.classify(sortedData, k)
+	class_winner = classify.classify(sortedData, k)
 
 end
 
-return distance
+return classify
