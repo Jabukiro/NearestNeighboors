@@ -25,6 +25,8 @@ function loadcsv.open(path)
 				i = i+1
 			end
 		end	
+		io.close(file)
+		file = nil
 		return data
 	end
 
