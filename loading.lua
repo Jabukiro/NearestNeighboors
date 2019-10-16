@@ -46,6 +46,25 @@ local function loadQuote(group)
     }
     messageText:setEmbossColor( color )
 end
+
+local function loadLogo(group)
+    logoOpts = {
+        parent = group,
+        filename = 'logo.png',
+        width = width,
+        height = 100
+    }
+    logoImg = display.newImageRect(group, 'logo.png', width*0.9, (width*0.9)*(55/258))
+    logoImg.x, logoImg.y = display.contentCenterX, display.contentCenterY
+
+end
+
+local function continueBtnHandle(event)
+    if (event.phase == 'ended') then
+        composer.gotoScene( "loading")
+    end
+end
+
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
@@ -61,6 +80,7 @@ function scene:create( event )
     --Or messae about ML if not.
     if confTable.openedBefore then
         loadLogo(sceneGroup)
+        print(confTable.openedBefore)
     else 
         loadQuote(sceneGroup)
         confTable.openedBefore = true
@@ -69,7 +89,7 @@ function scene:create( event )
     {
         id = "continueBtn",
         label = "Continue",
-        onEvent = handleButtonEvent,
+        onEvent = continueBtnHandle,
         emboss = false,
         -- Properties for a rounded rectangle button
         shape = "roundedRect",
