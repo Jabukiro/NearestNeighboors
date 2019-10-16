@@ -1,3 +1,7 @@
+-- repo found at https://github.com/robmiracle/Simple-Table-Load-Save-Functions-for-Corona-SDK
+--robmiracle@github.com
+
+
 local M = {}
 local json = require("json")
 local _defaultLocation = system.DocumentsDirectory
