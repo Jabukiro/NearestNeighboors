@@ -6,12 +6,16 @@ local composer = require( "composer" )
 
 local scene = composer.newScene()
 local widget = require("widget")
-
+local loadsave = require("loadsave")
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 -- Preload the data here
+confTable = {openedBefore = false}
+
+local configuration = loadsave.loadTable('config.json')
+
 local sceneNumber = 0
 
 local message = "A wise man once said:\n\n ...Machine Learning is like teenage sex. Everyone talks about it, nobody really knows how to do it, everyone thinks everybody else is doing it, so everyone claims they're doing it."
@@ -19,6 +23,29 @@ local message = "A wise man once said:\n\n ...Machine Learning is like teenage s
 local height = display.actualContentHeight
 local width = display.actualContentWidth
 
+local function loadQuote(group)
+    --Options for our little greeting message
+    --Will run once. when the app is first used.
+    messageOptions = {
+        parent = group,
+        text = message,
+        x=display.contentCenterX,
+        y=display.contentCenterY,
+        height = height*0.8,
+        width = width*0.8,
+        font = 'Helvetica',
+        fontSize =90
+    }
+    local messageText = display.newEmbossedText( messageOptions )
+    messageText:setFillColor( 0.8 )
+ 
+    local color = 
+    {
+        highlight = { r=1, g=1, b=1 },
+        shadow = { r=0.3, g=0.3, b=0.3 }
+    }
+    messageText:setEmbossColor( color )
+end
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
@@ -29,18 +56,15 @@ function scene:create( event )
 
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
-    -- Options for our little greeting message.
-    messageOptions = {
-        parent = sceneGroup,
-        text = message,
-        x=display.contentCenterX,
-        y=display.contentCenterY,
-        height = height*0.8,
-        width = width*0.8,
-        font = 'Helvetica',
-        fontSize =90
-    }
 
+    --Will display the logo if app has been opened before
+    --Or messae about ML if not.
+    if confTable.openedBefore then
+        loadLogo(sceneGroup)
+    else 
+        loadQuote(sceneGroup)
+        confTable.openedBefore = true
+    end
     local button1 = widget.newButton(
     {
         id = "continueBtn",
@@ -61,16 +85,6 @@ function scene:create( event )
     button1._view._label.color = {1,1,1}
 
     print(height*0.9, width)
-
-    local messageText = display.newEmbossedText( messageOptions )
-    messageText:setFillColor( 0.8 )
- 
-    local color = 
-    {
-        highlight = { r=1, g=1, b=1 },
-        shadow = { r=0.3, g=0.3, b=0.3 }
-    }
-    messageText:setEmbossColor( color )
 end
 
 
