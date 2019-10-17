@@ -61,7 +61,7 @@ end
 
 local function continueBtnHandle(event)
     if (event.phase == 'ended') then
-        composer.gotoScene( "loading")
+        composer.gotoScene( "selectScene")
     end
 end
 
@@ -144,6 +144,7 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
+    loadsave.saveTable(confTable, 'config.json')
     -- Code here runs prior to the removal of scene's view
 
 end
