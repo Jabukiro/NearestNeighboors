@@ -30,8 +30,8 @@ function loadcsv.open(file)
 				y = y+0
 
 				--Updating metadata
-				data.xmax = (data.xmax > x and x) or data.xmax
-				data.ymax = (data.ymax > y and y) or data.ymax
+				data.xmax = (data.xmax < x and x) or data.xmax
+				data.ymax = (data.ymax < y and y) or data.ymax
 				data.length = data.length + 1
 
 			end
