@@ -15,6 +15,7 @@ function testLoadCSVOpenSuccess()
 		{x="1", y="1", class="a"},
 		{x="2", y="2", class="b"}
 	}
+	expData.xmax, expData.ymax = 2,2
 	data = loadcsv.open(path)
 	luaunit.assertEquals(data, expData)
 end
