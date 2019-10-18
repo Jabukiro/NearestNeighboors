@@ -19,16 +19,30 @@ local top      = centerY - fullh/2
 local right    = (centerX + fullw/2)
 local bottom   = centerY + fullh/2
 
-local function dataToCordinates(data, axis)
+local function dataToCoordinates(data, axis)
     --Simply maps the data points to the range of the axis
     --by using the ratio between the axis-range and relevant maximum data point.
-    local cordinates
-    for i=0, data.length, 1 do
-        coordinates[i].x = data[i].x*(axis.right/data.xmax)
-        coordinates[i].y = data[i].y*(axis.bottom/data.ymax)
+    xRange = axis.right - 30
+    local coordinates = {}
+    for i=1, data.length, 1 do
+        x = data[i].x*(xRange/data.xmax)
+        y = data[i].y*(axis.bottom/data.ymax)
+        coordinates[i] = {x=x, y=y}
     end
     return coordinates
 
+end
+local function plotPoints(coordinates, axis, option)
+    --Use image as dots made with display.newCircle() look like polygons
+        area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
+        for i=1, data.length, 1 do
+            --class 'a' red dots, class 'b' blue dots
+            print(data[i].class)
+            filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
+            local object = display.newImageRect( axis.group, filename, 60, 60 )
+            object.x = coordinates[i].x
+            object.y = coordinates[i].y
+        end
 end
 local function makexyAxis(group, data)
     --Will make the xy axis as well as populate data
@@ -38,6 +52,8 @@ local function makexyAxis(group, data)
     local axis = {}
     local axisGroup = display.newGroup()
     group:insert(axisGroup)
+
+    axis.group = axisGroup
     axis.rightMargin = 10
     axis.bottomMargin = 50
     
@@ -54,7 +70,7 @@ local function makexyAxis(group, data)
     axisBackground.path.x3, axisBackground.path.y3 = fullw,centerY
     axisBackground.path.x4, axisBackground.path.y4 = fullw,0
     --Below's function will place the data points on the axis.
-    local cordinates = dataToCordinates(data, axis)
+
     
     --Xaxis line with a max and a mid line
     axis.width = 10
@@ -62,28 +78,30 @@ local function makexyAxis(group, data)
     local xaxis = display.newLine(axisGroup, 0, axis.bottom, axis.right, axis.bottom)
     xaxis.strokeWidth = axis.width
     xaxis:setStrokeColor( 0, 0, 0  )
-    local xmax = display.newLine(axisGroup, axis.right-5, axis.bottom, axis.right-5, axis.bottom+30)
-    xmax.strokeWidth = 5
-    xmax:setStrokeColor( 0, 0, 1 )
-    local xmid = display.newLine(axisGroup, (axis.left+axis.right)/2, axis.bottom, (axis.left+axis.right)/2, axis.bottom+5)
-    xmid.strokeWidth = 5
-    xmid:setStrokeColor( 0, 0, 1 )
+    --local xmax = display.newLine(axisGroup, axis.right-5, axis.bottom, axis.right-5, axis.bottom+30)
+    --xmax.strokeWidth = 5
+    --xmax:setStrokeColor( 0, 0, 1 )
+    --local xmid = display.newLine(axisGroup, (axis.left+axis.right)/2, axis.bottom, (axis.left+axis.right)/2, axis.bottom+5)
+    --xmid.strokeWidth = 5
+    --xmid:setStrokeColor( 0, 0, 1 )
 
     --Yaxis line with a max and a mid line
     local yaxis = display.newLine(axisGroup, axis.left, centerY, axis.left, axis.top)
     yaxis.strokeWidth = axis.width
     yaxis:setStrokeColor( 0, 0, 0 )
-    local ymax = display.newLine(axisGroup, axis.left-5, axis.top, axis.left, axis.top)
-    ymax.strokeWidth = 5
-    ymax:setStrokeColor( 0, 0, 0 )
-    local ymid = display.newLine(axisGroup, axis.left-5, (axis.bottom+axis.top)/2, axis.left, (axis.bottom+axis.top)/2)
-    ymid.strokeWidth = 5
-    ymid:setStrokeColor( 0, 0, 1 )
+    --local ymax = display.newLine(axisGroup, axis.left-5, axis.top, axis.left, axis.top)
+    --ymax.strokeWidth = 5
+    --ymax:setStrokeColor( 0, 0, 0 )
+    --local ymid = display.newLine(axisGroup, axis.left-5, (axis.bottom+axis.top)/2, axis.left, (axis.bottom+axis.top)/2)
+    --ymid.strokeWidth = 5
+    --ymid:setStrokeColor( 0, 0, 1 )
 
 
-    --Below's function will return relevant xy-cordinates of axis
-    local cordinates = dataToCordinates(data, axis)
+    --Below's function will return relevant xy-coordinates of axis
+    local coordinates 
+    coordinates = dataToCoordinates(data, axis)
     -- plot points --
+    plotPoints(coordinates, axis)
 
 end
 
