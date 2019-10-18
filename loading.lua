@@ -7,14 +7,23 @@ local composer = require( "composer" )
 local scene = composer.newScene()
 local widget = require("widget")
 local loadsave = require("loadsave")
+local loadcsv = require("loadcsv")
+
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 -- Preload the data here
-confTable = {openedBefore = false}
+local confTable = loadsave.loadTable('config.json')
+path = confTable.dataFile or system.pathForFile('knn.csv', system.ResourceDirectory)
+print(path)
+local file, error = io.open(path)
+local data
+if error then print(error)
+else data = loadcsv.open(file) end
+print(data[1].x)
+composer.setVariable("data", data)
 
-local configuration = loadsave.loadTable('config.json')
 
 local sceneNumber = 0
 
@@ -85,6 +94,8 @@ function scene:create( event )
         loadQuote(sceneGroup)
         confTable.openedBefore = true
     end
+
+    
     local button1 = widget.newButton(
     {
         id = "continueBtn",
