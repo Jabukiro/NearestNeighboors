@@ -22,7 +22,7 @@ local bottom   = centerY + fullh/2
 
 local axisGroup = display.newGroup()
 
-function axisGroup:plotPoints(coordinates, locData)
+function axisGroup:plotPoints(coordinates, single, locData)
     --Use image as dots made with display.newCircle() look like polygons
     --plots different image based on class. Finds it in locData
     --Assumes trying to plot global data if not given
@@ -30,17 +30,23 @@ function axisGroup:plotPoints(coordinates, locData)
     --Done this way so as to not duplicate information.
     --if points and class in same data, it can be passed twice.
 
-        area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
+        if single then
+            local object = display.newImageRect( self, 'selectedDot.png', 60, 60 )
+            object.x = coordinates.x
+            object.y = coordinates.y
+        else
+            area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
 
-        local locData = locData or data
+            local locData = locData or data
 
-        for i=1, data.length, 1 do
-            --class 'a' red dots, class 'b' blue dots
-            print(data[i].class)
-            filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
-            local object = display.newImageRect( self, filename, 60, 60 )
-            object.x = coordinates[i].x
-            object.y = coordinates[i].y
+            for i=1, locData.length, 1 do
+                --class 'a' red dots, class 'b' blue dots
+                print(data[i].class)
+                filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
+                local object = display.newImageRect( self, filename, 60, 60 )
+                object.x = coordinates[i].x
+                object.y = coordinates[i].y
+            end
         end
 end
 
@@ -152,7 +158,8 @@ local function selectPoint(event)
     elseif event.phase == 'moved' then
         axisGroup:selectedAxis(event.x, event.y)
     elseif event.phase == 'ended' then
-        print('point selected at x= '..event.x..' and y='..event.y)
+        local pnt = {x=event.x, y=event.y}
+        axisGroup:plotPoints( pnt, true)
     end
 end
 -- -----------------------------------------------------------------------------------
