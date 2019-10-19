@@ -5,9 +5,9 @@
 luaunit = require("luaunit")
 loadcsv = require("loadcsv")
 
-path = './test.csv'
-noPath = 'blo'
-pathNotProperFormat = './fake.csv'
+path = './_test.csv' --for testLoadCSVOpenSuccess()
+pathNotProperFormat = './_invalidClass.csv' --for testLoadCSVOpenFormat()
+path3PlusClasses = './_3PlusClasses.csv' --for testLoadCSVOpenFormatClass()
 
 -- Test 'loadcsv.open'
 function testLoadCSVOpenSuccess()
@@ -18,6 +18,7 @@ function testLoadCSVOpenSuccess()
 	expData.xmax, expData.ymax = 2,2
 	expData.xmin, expData.ymin = 0,0
 	expData.length = 2
+	expData.classA, expData.classB = 'aa', 'bbb'
 	local file = io.open(path)
 	data = loadcsv.open(file)
 	luaunit.assertEquals(data, expData)
@@ -38,7 +39,7 @@ function testLoadCSVOpenFormat()
 end
 
 function testLoadCSVOpenFormatClass()
-	local file = io.open(pathNotProperFormat)
+	local file = io.open(path3PlusClasses)
 	local errorMsg = "File doesn't match specified format. Expected 2 classes. 3 or more given."
 	luaunit.assertErrorMsgContains(errorMsg, loadcsv.open, 
 									file)
