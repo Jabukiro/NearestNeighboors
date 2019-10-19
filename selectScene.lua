@@ -5,6 +5,7 @@
 local composer = require( "composer" )
 local widget = require("widget")
 local loadsave = require("loadsave")
+local classify = require("classify")
 
 local scene = composer.newScene()
 local confTable = loadsave.loadTable('config.json')
@@ -19,22 +20,19 @@ local top      = centerY - fullh/2
 local right    = (centerX + fullw/2)
 local bottom   = centerY + fullh/2
 
-local function dataToCoordinates(data, axis)
-    --Simply maps the data points to the range of the axis
-    --by using the ratio between the axis-range and relevant maximum data point.
-    xRange = axis.right - 30
-    local coordinates = {}
-    for i=1, data.length, 1 do
-        x = data[i].x*(xRange/data.xmax)
-        y = data[i].y*(axis.bottom/data.ymax)
-        coordinates[i] = {x=x, y=y}
-    end
-    return coordinates
 
-end
-local function plotPoints(coordinates, axis, option)
+local function plotPoints(coordinates, axis, locData)
     --Use image as dots made with display.newCircle() look like polygons
+    --plots different image based on class. Finds it in locData
+    --Assumes trying to plot global data if not given
+
+    --Done this way so as to not duplicate information.
+    --if points and class in same data, it can be passed twice.
+
         area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
+
+        local locData = locData or data
+
         for i=1, data.length, 1 do
             --class 'a' red dots, class 'b' blue dots
             print(data[i].class)
@@ -50,6 +48,7 @@ local function makexyAxis(group, data)
 
     --create group
     local axis = {}
+    local coordinates = {}
     local axisGroup = display.newGroup()
     group:insert(axisGroup)
 
@@ -58,9 +57,17 @@ local function makexyAxis(group, data)
     axis.bottomMargin = 50
     
     axis.left = 50
+    coordinates.xmin = axis.left
+
     axis.top = 10
+    coordinates.ymax = axis.top
+
     axis.right = fullw - axis.rightMargin
+    coordinates.xmax = (axis.right-30)
+
     axis.bottom = centerY - axis.bottomMargin
+    coordinates.ymin = axis.bottom
+
     axis.xLabel = data.xlabel
     axis.yLabel = data.yLabel
     axisBackground = display.newRect(axisGroup, 0,0,0,0)
@@ -97,9 +104,9 @@ local function makexyAxis(group, data)
     --ymid:setStrokeColor( 0, 0, 1 )
 
 
-    --Below's function will return relevant xy-coordinates of axis
-    local coordinates 
-    coordinates = dataToCoordinates(data, axis)
+    --Below's function will return relevant xy-coordinates of axis 
+    coordinates = classify.scaler(data, coordinates)
+    print(coordinates.xmax, coordinates.xmin, coordinates.ymax, coordinates.ymin)
     -- plot points --
     plotPoints(coordinates, axis)
 
