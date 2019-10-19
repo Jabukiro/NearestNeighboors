@@ -83,23 +83,22 @@ function classify.orderedInsert(sortedData, insert)
 	end
 end
 
-function classify.classify(data, k)
+function classify.classify(kData, k)
 	--Returns class that wins the weighted popular vote
 	--Distance is used to give weight to each point
 	--Nearest points given more weight
-	--Assumes data already sorted.
+	--Assumes kData already sorted
 	-- Assumes that its a binary classification-
 	-- and the classes are 'a' and 'b'
-	-- TODO update loadcsv to reflect above
 	winner = nil
 	local a=0
 	local w_a=0
 	local b=0
 	local w_b=0
-	for index, point in pairs(data) do
+	for index, point in pairs(kData) do
 		if point.class=='a' then
 			a = a +1
-			w_a = w_a + (1/point.dist)
+			w_a = w_a + (1/point.dist) --weights will be inf if dist==o
 		elseif point.class=='b' then
 			b = b+1
 			w_b = w_b + (1/point.dist)
