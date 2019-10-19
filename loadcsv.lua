@@ -9,11 +9,15 @@
 -- -----------------------------------------------------------------------------------
 
 local loadcsv = {}
+local data = {}
+
+function loadcsv.scaleUp()
+end
 
 function loadcsv.open(file)
-		local data = {}
 		--Metadata
 		data.xmax, data.ymax, data.length = 0,0,0
+		data.xmin, data.ymin = 0,0
 		local i = 1
 		for line in file:lines() do
 			--Check if each line matches specified format
@@ -32,10 +36,15 @@ function loadcsv.open(file)
 				--Updating metadata
 				data.xmax = (data.xmax < x and x) or data.xmax
 				data.ymax = (data.ymax < y and y) or data.ymax
+
+				--Use these to scale up data if x or y are negative
+				data.xmin = (data.xmin > x and x) or data.xmin
+				data.ymin = (data.ymin > y and y) or data.ymin
 				data.length = data.length + 1
 
 			end
 		end
+		if (data.xmin<0 or data.ymin<0) then loadcsv.scaleUp() end
 		return data
 
 end
