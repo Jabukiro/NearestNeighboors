@@ -37,4 +37,13 @@ function testLoadCSVOpenFormat()
 	file = nil
 end
 
+function testLoadCSVOpenFormatClass()
+	local file = io.open(pathNotProperFormat)
+	local errorMsg = "File doesn't match specified format. Expected 2 classes. 3 or more given."
+	luaunit.assertErrorMsgContains(errorMsg, loadcsv.open, 
+									file)
+	io.close(file)
+	file = nil
+end
+
 os.exit(luaunit.LuaUnit.run())

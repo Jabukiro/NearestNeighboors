@@ -19,12 +19,23 @@ function loadcsv.open(file)
 		data.xmax, data.ymax, data.length = 0,0,0
 		data.xmin, data.ymin = 0,0
 		local i = 1
+		local firstClass
+		local secondClass
 		for line in file:lines() do
 			--Check if each line matches specified format
 			x, y, class = string.match(line, "(%d+),(%d+),(%a+)")
 			if (x == nil or y == nil or class == nil) then
 				error("File doesn't match specified format.")
-			else 
+			else
+				--Make sure there are only 2 classes
+				if firstClass == nil then
+					firstClass = class
+				elseif firstClass ~= class then
+					secondClass = class
+				elseif secondClass ~= class then 
+					error("File doesn't match specified format. Expected 2 classes. 3 or more given.")
+				end
+
 				data[i] = {x=x, y=y, class=class}
 				i = i+1
 				--Determine the maximum values for x and y
