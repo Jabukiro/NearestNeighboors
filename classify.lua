@@ -39,6 +39,48 @@ function classify.chebyshev(p1, p2)
 end
 -- Passed test 01:16 10/10/19
 
+function classify.scaler(inRange, outRange)
+    ---------------------------------------------------------------
+    --move to classify?
+    --inRange=data, outRange = screenCoordinates 
+    ----Scales Data value to Coordinates range
+    --
+    --Reverse order of parameter to get data value from selected point.
+    ---------------------------------------------------------------
+
+    --inRange Format:
+    ----indexed value (inRange[i]) should only contain points:
+    ------inRange[i].x, inRange[i].y
+    ----inRange.xmax, inRange.ymax, inRange.xmin, inRange.ymin
+
+    --outRange Format =
+    ----outRange.xmax, outRange.ymax, outRange.xmin, outRange.ymin
+
+    --Simply maps the values in `inRange` to the range of `outRange`
+    --Uses the ratio between the range of both input. Is its own inverse by exchanging both parameters
+
+	xRatio = ( outRange.xmax - outRange.xmin ) / ( inRange.xmax - inRange.xmin )
+	yRatio = ( outRange.ymax - outRange.ymin ) / ( inRange.ymax - inRange.ymin )
+    
+	for i=1, inRange.length, 1 do
+		--Translate every point so that minmum point is 0.
+        inxT = inRange[i].x - inRange.xmin
+		inyT = inRange[i].y - inRange.ymin
+		
+		--Scale using ratios
+		outxT = inxT*xRatio
+		outyT = inyT*yRatio
+
+		--Translate every point so that minimum point is natural minimum of outRange.
+		outx = outxT + outRange.xmin
+		outy = outyT + outRange.ymin
+		print(inRange[i].x, outx, inRange[i].y, outy, '--Points')
+        outRange[i] = {x=outx, y=outy}
+    end
+    return outRange
+
+end
+
 function classify.orderedInsert(sortedData, insert)
 	--TODO: make local after unit tests.
 	--Simple algorithm to insert items in a sorted manner.
