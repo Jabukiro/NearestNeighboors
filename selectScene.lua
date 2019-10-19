@@ -20,7 +20,6 @@ local top      = centerY - fullh/2
 local right    = (centerX + fullw/2)
 local bottom   = centerY + fullh/2
 
-
 local function plotPoints(coordinates, axis, locData)
     --Use image as dots made with display.newCircle() look like polygons
     --plots different image based on class. Finds it in locData
@@ -42,17 +41,20 @@ local function plotPoints(coordinates, axis, locData)
             object.y = coordinates[i].y
         end
 end
-local function makexyAxis(group, data)
+
+local axisGroup = display.newGroup()
+function axisGroup:makexyAxis(group, data)
     --Will make the xy axis as well as populate data
     --Returns reference to said group
 
     --create group
     local axis = {}
     local coordinates = {}
-    local axisGroup = display.newGroup()
-    group:insert(axisGroup)
 
-    axis.group = axisGroup
+    group:insert(self)
+    print(self)
+
+    axis.group = self
     axis.rightMargin = 10
     axis.bottomMargin = 50
     
@@ -70,19 +72,19 @@ local function makexyAxis(group, data)
 
     axis.xLabel = data.xlabel
     axis.yLabel = data.yLabel
-    axisBackground = display.newRect(axisGroup, 0,0,0,0)
-    axisBackground:setFillColor( 0.8 )
-    axisBackground.path.x1, axisBackground.path.y1 = 0,0
-    axisBackground.path.x2, axisBackground.path.y2 = 0,centerY
-    axisBackground.path.x3, axisBackground.path.y3 = fullw,centerY
-    axisBackground.path.x4, axisBackground.path.y4 = fullw,0
+    self.background = display.newRect(self, 0,0,0,0)
+    self.background:setFillColor( 0.8 )
+    self.background.path.x1, self.background.path.y1 = 0,0
+    self.background.path.x2, self.background.path.y2 = 0,centerY
+    self.background.path.x3, self.background.path.y3 = fullw,centerY
+    self.background.path.x4, self.background.path.y4 = fullw,0
     --Below's function will place the data points on the axis.
 
     
     --Xaxis line with a max and a mid line
     axis.width = 10
     axis.colour = {0,0,0,1}
-    local xaxis = display.newLine(axisGroup, 0, axis.bottom, axis.right, axis.bottom)
+    local xaxis = display.newLine(self, 0, axis.bottom, axis.right, axis.bottom)
     xaxis.strokeWidth = axis.width
     xaxis:setStrokeColor( 0, 0, 0  )
     --local xmax = display.newLine(axisGroup, axis.right-5, axis.bottom, axis.right-5, axis.bottom+30)
@@ -112,6 +114,20 @@ local function makexyAxis(group, data)
 
 end
 
+local function xyLines(x,y)
+    print('point selected at x= '..x..' and y='..y)
+end
+-- -----------------------------------------------------------------------------------
+-- axisGroup event function listeners
+-- -----------------------------------------------------------------------------------
+
+local function selectPoint(event)
+
+    if event.phase == "began" then
+        xyLines(event.xStart, event.yStart)
+        return true
+    end
+end
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
@@ -122,7 +138,8 @@ function scene:create( event )
 
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
-    makexyAxis(sceneGroup, data)
+    axisGroup:makexyAxis(sceneGroup, data)
+    axisGroup.background:addEventListener( "touch", selectPoint )
 end
 
 
