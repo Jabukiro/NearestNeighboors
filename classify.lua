@@ -9,9 +9,7 @@
 
 local math = require("math")
 -- Adding nth sum series to math library
-function math.nthsum(n)
-	return n*(n+1)/2
-end
+
 local classify={}
 
 function classify.euclidean(p1, p2)
@@ -40,15 +38,6 @@ function classify.chebyshev(p1, p2)
 	return math.max(distx, disty)
 end
 -- Passed test 01:16 10/10/19
-
-function classify.weights(k)
-	--Weights used for classification.
-	weights = {}
-	for i=1, k do
-		weights[i] = 1/i
-	end
-	return weights
-end
 
 function classify.orderedInsert(sortedData, insert)
 	--TODO: make local after unit tests.
@@ -137,12 +126,12 @@ end
 function classify.main(selected, data, k, metric)
 	--Only function that needs to be called by the app.
 
-	--No unit test as it is simply a mix of three other functions
 	--Metric - Weights - OrderedInsert
 	--Sorts the data points from nearest to furthest away of 
 	--Uses a specified metric
 
 	local metric = metric or 'euclidean' --Default metric distance.
+	local k = k or 4
 	local sortedData = {}
 
 

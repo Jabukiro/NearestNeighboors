@@ -10,6 +10,13 @@ classify = require("classify")
 local p11 = {x=4, y=3}
 local p12 = {x=0, y=0}
 
+local kData = {
+	{dist=1, class='b', x=2, y=2},
+	{dist=1, class='a', x=0, y=1},
+	{dist=2, class='a', x=1, y=1},
+	{dist=1, class='b', x=2, y=2}
+	}
+
 -- Tests 'classify.euclidean'
 function testClassifyEuclidean()
     local dist = classify.euclidean(p11, p12)
@@ -31,14 +38,7 @@ function testClassifyChebyshev()
 	luaunit.assertEquals(dist, 4)
 end
 
--- Test 'classify.weights'. Should return table containing normalised weights
--- TODO: Update test to test for nomalised weights
-function testClassifyWeights()
-	luaunit.assertEquals(classify.weights(4), {1, 1/2, 1/3, 1/4})
-end
--- passed 11:30 on 10/10/19
-
--- Test 'classify.sortNearest'
+-- Test 'classify.orderedInsert'
 expData = {
 	{x="1", y="1", class="a"},
 	{x="2", y="2", class="b"}
@@ -65,13 +65,7 @@ end
 
 
 function testClassifyClassify()
-	data = {
-		{dist=1, class='b', x=2, y=2},
-		{dist=1, class='a', x=0, y=1},
-		{dist=2, class='a', x=1, y=1},
-		{dist=1, class='b', x=2, y=2}
-		}
-	luaunit.assertEquals(classify.classify(data, #data), 'b')
+	luaunit.assertEquals(classify.classify(kData, #data), 'b')
 end
 
 os.exit(luaunit.LuaUnit.run())
