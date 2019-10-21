@@ -103,8 +103,6 @@ function classify.orderedInsert(sortedData, insert)
 	for index=1, #sortedData,1 do
 		point = sortedData[index]
 		if insert.dist < point.dist then
-			--INVESTIGATE: Does this copy by value or reference.
-			--Should be reference
 			table.insert( sortedData, index, insert )
 			return sortedData
 
