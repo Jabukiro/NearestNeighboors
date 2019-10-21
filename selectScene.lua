@@ -22,7 +22,7 @@ local bottom   = centerY + fullh/2
 
 local axisGroup = display.newGroup()
 
-function axisGroup:plotPoints(coordinates, single, locData)
+function axisGroup:plotPoints(coordinates, option, locData)
     --Use image as dots made with display.newCircle() look like polygons
     --plots different image based on class. Finds it in locData
     --Assumes trying to plot global data if not given
@@ -30,22 +30,24 @@ function axisGroup:plotPoints(coordinates, single, locData)
     --Done this way so as to not duplicate information.
     --if points and class in same data, it can be passed twice.
 
-        if single then
-            local object = display.newImageRect( self, 'selectedDot.png', 60, 60 )
-            object.x = coordinates.x
-            object.y = coordinates.y
-        else
-            area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
+        if option == 'selected' then
+            local self.selected.point = display.newImageRect( self, 'selectedDot.png', 60, 60 )
+            self.selected.point.x = coordinates.x
+            self.selected.point.y = coordinates.y
 
+        elseif option == 'data' 
+            --Plots points from the data.
+            area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
+            self.points = {}
             local locData = locData or data
 
             for i=1, locData.length, 1 do
                 --class 'a' red dots, class 'b' blue dots
                 print(data[i].class)
                 filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
-                local object = display.newImageRect( self, filename, 60, 60 )
-                object.x = coordinates[i].x
-                object.y = coordinates[i].y
+                self.points[i] = display.newImageRect( self, filename, 60, 60 )
+                self.points[i].x = coordinates[i].x
+                self.points[i].y = coordinates[i].y
             end
         end
 end
@@ -54,7 +56,7 @@ function axisGroup:makexyAxis(group, data)
     --Will make the xy axis as well as populate data
     --Returns reference to said group
 
-    local coordinates = {}
+    local coordinates 
 
     group:insert(self)
     print(self)
@@ -63,16 +65,16 @@ function axisGroup:makexyAxis(group, data)
     self.yminMargin = 50
     
     self.xmin = 50
-    coordinates.xmin = self.xmin
+    self.coordinates.xmin = self.xmin
 
     self.ymax = 10
-    coordinates.ymax = self.ymax
+    self.coordinates.ymax = self.ymax
 
     self.xmax = fullw - self.xmaxMargin
-    coordinates.xmax = (self.xmax-30)
+    self.coordinates.xmax = (self.xmax-30)
 
     self.ymin = centerY - self.yminMargin
-    coordinates.ymin = self.ymin
+    self.coordinates.ymin = self.ymin
 
     self.xLabel = data.xlabel
     self.yLabel = data.yLabel
@@ -112,11 +114,11 @@ function axisGroup:makexyAxis(group, data)
 
 
     --Below's function will return relevant xy-coordinates of axis 
-    coordinates = classify.scaler(data, coordinates)
-    print(coordinates.xmax, coordinates.xmin, coordinates.ymax, coordinates.ymin)
+    self.coordinates = classify.scaler(data, self.coordinates)
+    print(self.coordinates.xmax, self.coordinates.xmin, self.coordinates.ymax, self.coordinates.ymin)
     -- plot points --
     --Convert to OOP
-    self:plotPoints(coordinates)
+    self:plotPoints(self.coordinates, 'data')
 
 end
 function axisGroup:selectedAxisRemove()
@@ -156,10 +158,15 @@ local function selectPoint(event)
         axisGroup:selectedAxis(event.xStart, event.yStart)
         return true
     elseif event.phase == 'moved' then
+        --If a point has already been plotted, then remove it
+        if axisGroup.selected.point then 
+            axisGroup.selected.point:removeSelf()
+        end
         axisGroup:selectedAxis(event.x, event.y)
     elseif event.phase == 'ended' then
         local pnt = {x=event.x, y=event.y}
-        axisGroup:plotPoints( pnt, true)
+        -- Plot selected point
+        axisGroup:plotPoints( pnt, 'selected')
     end
 end
 -- -----------------------------------------------------------------------------------

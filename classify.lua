@@ -61,7 +61,6 @@ function classify.scaler(inRange, outRange)
 
 	xRatio = ( outRange.xmax - outRange.xmin ) / ( inRange.xmax - inRange.xmin )
 	yRatio = ( outRange.ymax - outRange.ymin ) / ( inRange.ymax - inRange.ymin )
-    
 	for i=1, inRange.length, 1 do
 		--Translate every point so that minmum point is 0.
         inxT = inRange[i].x - inRange.xmin
@@ -74,7 +73,6 @@ function classify.scaler(inRange, outRange)
 		--Translate every point so that minimum point is natural minimum of outRange.
 		outx = outxT + outRange.xmin
 		outy = outyT + outRange.ymin
-		print(inRange[i].x, outx, inRange[i].y, outy, '--Points')
         outRange[i] = {x=outx, y=outy}
     end
     return outRange

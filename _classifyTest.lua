@@ -79,15 +79,18 @@ end
 local inRange, outRange = {},{}
 outRange.xmin, outRange.ymin = 0,0
 outRange.xmax, outRange.ymax = 720, 1980
-for i=1, i=2, 1 do
+
+local l=2
+for i=1, l, 1 do
 	inRange[i] = {x=i, y=i}
 end
 
 inRange.xmin, inRange.ymin = 1,1
 inRange.xmax, inRange.ymax = 2,2
+inRange.length = 2
 
-local expData {
-	{x=0, y=0}
+local expData= {
+	{x=0, y=0},
 	{x=720, y=1980}
 }
 expData.xmin, expData.ymin = outRange.xmin, outRange.ymin
@@ -99,6 +102,8 @@ end
 
 function testClassifyScalerReverse()
 	local expData =inRange
+	outRange.length = inRange.length
+	print(inRange)
 	luaunit.assertEquals(classify.scaler(outRange, inRange), expData)
 end
 
