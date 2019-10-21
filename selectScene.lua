@@ -118,44 +118,116 @@ function axisGroup:makexyAxis(group, data)
 
 end
 function axisGroup:selectedAxisRemove()
+
+    local removed = false
+    
     if self.selected.xAxis then
+        print('removing x/y axis')
         self.selected.xAxis:removeSelf()
         self.selected.xAxis = nil
 
         self.selected.yAxis:removeSelf()
         self.selected.yAxis = nil
-
-        if self.selected.point then
-            --if point has already been plotted
-            --then remove it
-            self.selected.point.x = nil
-            self.selected.point.y=nil
-            self.selected.point:removeSelf()
-            self.selected.point = nil
-        end
-        return true
-    else 
-        return false
+        removed = true
     end
+    if self.selected.point then
+        print('removing point')
+        --if point has already been plotted
+        --then remove it
+        self.selected.point.x = nil
+        self.selected.point.y=nil
+        self.selected.point:removeSelf()
+        self.selected.point = nil
+        removed = true
+    end
+    if self.selected.result then
+        print('removing connecting lines')
+        --Classification done and plotted. Remove it
+
+        for i=1, #self.selected.result, 1 do
+            self.selected.result[i].axis:removeSelf()
+            self.selected.result[i].alpha = nil
+        end
+        self.selected.result = nil
+        removed = true
+    end
+
+    print('End removing selected details')
+    return removed
 
 end
 function axisGroup:selectedAxis(x,y)
     
     --Will reuse this line to represent the xy axises for selected point
-    axisGroup.selected.xAxis = display.newLine(axisGroup,x,y,self.xmin,y)
-    axisGroup.selected.xAxis.strokeWidth = 10
-    axisGroup.selected.xAxis:setStrokeColor( 0, 0, 0 )
+    self.selected.xAxis = display.newLine(axisGroup,x,y,self.xmin,y)
+    self.selected.xAxis.strokeWidth = 10
+    self.selected.xAxis:setStrokeColor( 0, 0, 0 )
 
-    axisGroup.selected.yAxis = display.newLine(axisGroup,x,y,x,self.ymin)
-    axisGroup.selected.yAxis.strokeWidth = 10
-    axisGroup.selected.yAxis:setStrokeColor( 0, 0, 0 )
+    self.selected.yAxis = display.newLine(axisGroup,x,y,x,self.ymin)
+    self.selected.yAxis.strokeWidth = 10
+    self.selected.yAxis:setStrokeColor( 0, 0, 0 )
 end
 
-function axisGroup:showWinners()
+function axisGroup:showWinners(k)
     --Will simply plot lines with varying colours
     --to the nearest k-neighboors
+    print('showing winners...')
 
+    self.selected.result = {}
+    local filename
+    local x,y = 0,0
     print(self.sortedData.result.winner)
+
+    outRange = {
+        xmin = self.coordinates.xmin,
+        xmax = self.coordinates.xmax,
+        ymin = self.coordinates.ymin,
+        ymax = self.coordinates.ymax
+    }
+    self.sortedData.xmin, self.sortedData.xmax = data.xmin, data.xmax 
+    self.sortedData.ymin, self.sortedData.ymax = data.ymin, data.ymax
+    self.sortedData.length= data.length
+    --local x-y coordinates of closest points
+    self.sortedData.coordinates = classify.scaler(self.sortedData, outRange)
+    
+    outRange = nil
+    --Create lines
+    for i=1, k, 1 do
+        
+        self.selected.result[i] = {}
+        print(self.sortedData.coordinates[i].x, self.sortedData.coordinates[i].y)
+        --Below will determine how strong the colour will be
+        self.selected.result[i].axis = display.newLine(
+            self,
+            self.selected.point.x, --Start points at selected point
+            self.selected.point.y,
+            self.sortedData.coordinates[i].x, --End points at corresponding point.
+            self.sortedData.coordinates[i].y)
+
+        self.selected.result[i].axis.strokeWidth = 5
+
+        if self.sortedData[i].class=='a' then
+            print('class a point')
+
+            --Figure out alpha value based on relative value of point's weight vs its own class weight
+            self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistA
+            self.selected.result[i].axis:setStrokeColor( 1, 0, 0, self.selected.result[i].alpha )
+        else 
+            print('class b point')
+            
+            --Figure out alpha value based on relative value of point's weight vs its own class weight
+            self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistB
+            self.selected.result[i].axis:setStrokeColor( 0, 0, 1, self.selected.result[i].alpha )
+        end
+    end
+
+    --Changing selected colour to it's new class colour
+    filename = (self.sortedData.result.winner == 'a' and 'redDot.png') or 'blueDot.png'
+    x,y = self.selected.point.x,self.selected.point.y
+    self.selected.point:removeSelf()
+    self.selected.point = display.newImageRect( self, filename, 60, 60 )
+    self.selected.point.x,self.selected.point.y = x,y
+    print('end showing winners')
 end
 function axisGroup:classify()
     --self.selected.point
@@ -179,7 +251,9 @@ function axisGroup:classify()
     self.dataPoint = {x=outRange[1].x, y=outRange[1].y}
     --print(self.dataPoint.x, self.dataPoint.y)
     self.sortedData = classify.main(self.dataPoint, data, 4, 'euclidean')
-    axisGroup:showWinners()
+    point = nil
+    outRange = nil
+    axisGroup:showWinners(4)
 end
 -- -----------------------------------------------------------------------------------
 -- axisGroup event function listeners
