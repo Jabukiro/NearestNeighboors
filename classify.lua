@@ -3,7 +3,7 @@
 -- 
 -- Implements the 3 distance metrics calculation for the Application
 -- Euclidean, Manhattan, Chebyshev.
--- TODO: GUard against selecting point that is within data already.
+-- TODO: Make local after unit testing.
 -- Simply return class of point. Otherwise division by zero might occur in classification
 -- -----------------------------------------------------------------------------------
 
@@ -12,10 +12,13 @@ local math = require("math")
 
 local classify={}
 
+--This will be the k-classification factor
+local k
+
 function classify.euclidean(p1, p2)
 	
-	local distx2 = (p1.x + p2.x)^2
-	local disty2 = (p1.y + p2.y)^2
+	local distx2 = (p1.x - p2.x)^2
+	local disty2 = (p1.y - p2.y)^2
 
 	local dist = math.sqrt(distx2 + disty2)
 	return dist
@@ -73,14 +76,13 @@ function classify.scaler(inRange, outRange)
 		--Translate every point so that minimum point is natural minimum of outRange.
 		outx = outxT + outRange.xmin
 		outy = outyT + outRange.ymin
-        outRange[i] = {x=outx, y=outy}
+		outRange[i] = {x=outx, y=outy}
     end
     return outRange
 
 end
 
 function classify.orderedInsert(sortedData, insert)
-	--TODO: make local after unit tests.
 	--Simple algorithm to insert items in a sorted manner.
 	--Note: As the 'b' class is more numerous, it was chosen that if-
 	------- 2 points have the same distance to selected point, then-
@@ -88,54 +90,51 @@ function classify.orderedInsert(sortedData, insert)
 	------- Hence class 'b' will receive a smaller weight.
 	------- !!This is implemented implicitely by using the fact that class 'b' points
 	------- come after class 'a' points in orginal csv file.!!
+	if sortedData[1] == nil then
+		--If given an empty table, it returns a table
+		--with the new element as single member 
+		sortedData[1] = insert --Hence we'll insert at a new index or at the first index for an empty table.
+		return sortedData
+	end
 
-	local iter, tableRef, index = pairs(sortedData)
-	while true do
-		local currIndex, point = iter(tableRef, index)
-		if point == nil then
-			--reached end of list. Means new element has the biggest distance.
-			--Nice feature, if given an empty table, it returns a table
-			--with the new element as single member 
-			
-			currIndex = index or 0 --Either index will be the greatest index value or will be nil.
-			sortedData[index+1] = insert --Hence we'll insert at a new index or at the first index for an empty table.
-			return sortedData
-
-		elseif insert.dist < point.dist then
+	local point
+	for index=1, #sortedData,1 do
+		point = sortedData[index]
+		if insert.dist < point.dist then
 			--INVESTIGATE: Does this copy by value or reference.
 			--Should be reference
-			local previous = sortedData[currIndex] -- Element that will be 'pushed' into the next index.
-			sortedData[currIndex] = insert --Insert new element at the current Index
+			table.insert( sortedData, index, insert )
+			return sortedData
 
-			for i = currIndex+1, #sortedData+1 do
-				-- 'Push' all next element to +1 of their current index
-				-- Note iterator will not run if the currIndex was the last index of table.
-				nextInsert = sortedData[i]
-				sortedData[i] = previous
-				previous = nextInsert
-			end
+		elseif index == #sortedData then
+			--end of list reached without insert
+			--Insert is new max element
+			table.insert( sortedData, index+1, insert )
 			return sortedData
 		end
-		index = currIndex
-	
-	--TODO: insert safeguard against potential infinite loop
-	--make k value global and insert iterations to keep it at max k. 
 	end
 end
 
 function classify.classify(kData, k)
+	print('classifying data...')
 	--Returns class that wins the weighted popular vote
 	--Distance is used to give weight to each point
 	--Nearest points given more weight
 	--Assumes kData already sorted
 	-- Assumes that its a binary classification-
 	-- and the classes are 'a' and 'b'
-	winner = nil
 	local a=0
 	local w_a=0
 	local b=0
 	local w_b=0
-	for index, point in pairs(kData) do
+	local point
+	local result = {}
+	--Below's points will be used to determine
+	result.winner = nil
+	result.totalDistA = 0
+	result.totalDistB = 0
+	for i=1, k, 1 do
+		point = kData[i]
 		if point.class=='a' then
 			a = a +1
 			w_a = w_a + (1/point.dist) --weights will be inf if dist==o
@@ -147,17 +146,19 @@ function classify.classify(kData, k)
 		end
 		if index == k then break end --K data-points already considered.
 	end
+	result.totalDistA = 1/w_a
+	result.totalDistB = 1/w_b
 	if w_a == w_b then 
 		if a==b then
 			--Randorm decision Needed
 			return 'Level 2 tie. Random decision not yet implemented.'
 		else
-			winner = (a>b and 'a') or (b>a and 'b') --Will return name of class that is most present, since weighted score is the same.
-			return winner
+			result.winner = (a>b and 'a') or (b>a and 'b') --Will return name of class that is most present, since weighted score is the same.
+			return result
 		end
 	else 
-		winner = (w_a >w_b and 'a') or (w_b>w_a and 'b') --Will return class that has the best weighted score.
-		return winner
+		result.winner = (w_a >w_b and 'a') or (w_b>w_a and 'b') --Will return class that has the best weighted score.
+		return result
 	end
 
 end
@@ -170,7 +171,13 @@ function classify.main(selected, data, k, metric)
 	--Uses a specified metric
 
 	local metric = metric or 'euclidean' --Default metric distance.
-	local k = k or 4
+	if k == nil then
+		k=4
+	else
+		--Guard against trying to classify on more than data points.
+		k = (k>#data and #data) or k
+	end
+
 	local sortedData = {}
 
 
@@ -188,15 +195,16 @@ function classify.main(selected, data, k, metric)
 	end
 
 	local point_class
-	for _, point in pairs(data) do
+	for i=1, #data, 1 do
+		local point = data[i]
 		dist = metricFun(selected, point) --Distance calculated by chosen metric.
 		point_class = {dist=dist, class=point.class, x=point.x, y=point.y}
 
 		sortedData = classify.orderedInsert(sortedData, point_class) --Insert so that the list is in an Ascending manner.
 	end
 
-	--TODO: Classification using weigths
-	class_winner = classify.classify(sortedData, k)
+	sortedData.result = classify.classify(sortedData, k)
+	return sortedData
 
 end
 
