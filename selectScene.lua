@@ -43,12 +43,10 @@ function axisGroup:plotPoints(coordinates, option, locData)
 
             for i=1, locData.length, 1 do
                 --class 'a' red dots, class 'b' blue dots
-                print(data[i].class)
                 filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
                 self.points[i] = display.newImageRect( self, filename, 60, 60 )
                 self.points[i].x = coordinates[i].x
                 self.points[i].y = coordinates[i].y
-                print(self.points, self.points.x, self.points.y)
             end
         end
 end
@@ -58,7 +56,6 @@ function axisGroup:makexyAxis(group, data)
     --Returns reference to said group
 
     group:insert(self)
-    print(self)
 
     self.coordinates = {}
     self.selected = {}
@@ -85,7 +82,6 @@ function axisGroup:makexyAxis(group, data)
     self.background.path.x2, self.background.path.y2 = 0,centerY
     self.background.path.x3, self.background.path.y3 = fullw,centerY
     self.background.path.x4, self.background.path.y4 = fullw,0
-    print(self.background)
     --Below's function will place the data points on the axis.
 
     
@@ -116,7 +112,6 @@ function axisGroup:makexyAxis(group, data)
 
     --Below's function will return relevant xy-coordinates of axis 
     self.coordinates = classify.scaler(data, self.coordinates)
-    print(self.coordinates.xmax, self.coordinates.xmin, self.coordinates.ymax, self.coordinates.ymin)
     -- plot points --
     --Convert to OOP
     self:plotPoints(self.coordinates, 'data')
@@ -155,6 +150,37 @@ function axisGroup:selectedAxis(x,y)
     axisGroup.selected.yAxis.strokeWidth = 10
     axisGroup.selected.yAxis:setStrokeColor( 0, 0, 0 )
 end
+
+function axisGroup:showWinners()
+    --Will simply plot lines with varying colours
+    --to the nearest k-neighboors
+
+    print(self.sortedData.result.winner)
+end
+function axisGroup:classify()
+    --self.selected.point
+    --self.points
+    --Implement options (second part of screen.)
+    print('Data 1st point x/y: ',data[1].x, data[1].y)
+    local point = {}
+    point[1] = {x=self.selected.point.x, y=self.selected.point.y}
+    point.xmin, point.xmax = self.coordinates.xmin, self.coordinates.xmax
+    point.ymin, point.ymax = self.coordinates.ymin, self.coordinates.ymax
+    point.length = 1
+    outRange = {
+        xmin = data.xmin,
+        xmax = data.xmax,
+        ymin = data.ymin,
+        ymax = data.ymax
+    }
+    --print(point[1].x, point[1].y)
+    outRange = classify.scaler(point, outRange)
+
+    self.dataPoint = {x=outRange[1].x, y=outRange[1].y}
+    --print(self.dataPoint.x, self.dataPoint.y)
+    self.sortedData = classify.main(self.dataPoint, data, 4, 'euclidean')
+    axisGroup:showWinners()
+end
 -- -----------------------------------------------------------------------------------
 -- axisGroup event function listeners
 -- -----------------------------------------------------------------------------------
@@ -163,7 +189,7 @@ local function selectPoint(event)
 
     if event.phase == "began" then
         --If a point has already been plotted, then remove it
-        print(axisGroup:selectedAxisRemove())
+        axisGroup:selectedAxisRemove()
         axisGroup:selectedAxis(event.xStart, event.yStart)
         return true
     elseif event.phase == 'moved' then
@@ -174,6 +200,9 @@ local function selectPoint(event)
         local pnt = {x=event.x, y=event.y}
         -- Plot selected point
         axisGroup:plotPoints( pnt, 'selected')
+        --Classify selected point
+        --Confirmation beforehand needed?
+        axisGroup:classify()
     end
 end
 -- -----------------------------------------------------------------------------------
