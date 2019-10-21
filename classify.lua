@@ -77,6 +77,8 @@ function classify.scaler(inRange, outRange)
 		outx = outxT + outRange.xmin
 		outy = outyT + outRange.ymin
 		outRange[i] = {x=outx, y=outy}
+		print('in x/y', inRange[i].x, inRange[i].y)
+		print('out x/y', outRange[i].x, outRange[i].y)
     end
     return outRange
 
