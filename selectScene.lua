@@ -31,11 +31,11 @@ function axisGroup:plotPoints(coordinates, option, locData)
     --if points and class in same data, it can be passed twice.
 
         if option == 'selected' then
-            local self.selected.point = display.newImageRect( self, 'selectedDot.png', 60, 60 )
+            self.selected.point = display.newImageRect( self, 'selectedDot.png', 60, 60 )
             self.selected.point.x = coordinates.x
             self.selected.point.y = coordinates.y
 
-        elseif option == 'data' 
+        elseif option == 'data' then
             --Plots points from the data.
             area = fullh*fullw --TODOuse content area to determine appropriate size for small screens
             self.points = {}
@@ -48,6 +48,7 @@ function axisGroup:plotPoints(coordinates, option, locData)
                 self.points[i] = display.newImageRect( self, filename, 60, 60 )
                 self.points[i].x = coordinates[i].x
                 self.points[i].y = coordinates[i].y
+                print(self.points, self.points.x, self.points.y)
             end
         end
 end
@@ -56,11 +57,11 @@ function axisGroup:makexyAxis(group, data)
     --Will make the xy axis as well as populate data
     --Returns reference to said group
 
-    local coordinates 
-
     group:insert(self)
     print(self)
 
+    self.coordinates = {}
+    self.selected = {}
     self.xmaxMargin = 10
     self.yminMargin = 50
     
@@ -122,12 +123,21 @@ function axisGroup:makexyAxis(group, data)
 
 end
 function axisGroup:selectedAxisRemove()
-    if axisGroup.selectedXaxis then
-        axisGroup.selectedXaxis:removeSelf()
-        axisGroup.selectedXaxis = nil
+    if self.selected.xAxis then
+        self.selected.xAxis:removeSelf()
+        self.selected.xAxis = nil
 
-        axisGroup.selectedYaxis:removeSelf()
-        axisGroup.selectedYaxis = nil
+        self.selected.yAxis:removeSelf()
+        self.selected.yAxis = nil
+
+        if self.selected.point then
+            --if point has already been plotted
+            --then remove it
+            self.selected.point.x = nil
+            self.selected.point.y=nil
+            self.selected.point:removeSelf()
+            self.selected.point = nil
+        end
         return true
     else 
         return false
@@ -136,17 +146,14 @@ function axisGroup:selectedAxisRemove()
 end
 function axisGroup:selectedAxis(x,y)
     
-    --Can't edit line paths so recreate it everytime. First delete if exists
-    local deleted = self:selectedAxisRemove()
-    
     --Will reuse this line to represent the xy axises for selected point
-    axisGroup.selectedXaxis = display.newLine(axisGroup,x,y,self.xmin,y)
-    axisGroup.selectedXaxis.strokeWidth = 10
-    axisGroup.selectedXaxis:setStrokeColor( 0, 0, 0 )
+    axisGroup.selected.xAxis = display.newLine(axisGroup,x,y,self.xmin,y)
+    axisGroup.selected.xAxis.strokeWidth = 10
+    axisGroup.selected.xAxis:setStrokeColor( 0, 0, 0 )
 
-    axisGroup.selectedYaxis = display.newLine(axisGroup,x,y,x,self.ymin)
-    axisGroup.selectedYaxis.strokeWidth = 10
-    axisGroup.selectedYaxis:setStrokeColor( 0, 0, 0 )
+    axisGroup.selected.yAxis = display.newLine(axisGroup,x,y,x,self.ymin)
+    axisGroup.selected.yAxis.strokeWidth = 10
+    axisGroup.selected.yAxis:setStrokeColor( 0, 0, 0 )
 end
 -- -----------------------------------------------------------------------------------
 -- axisGroup event function listeners
@@ -155,13 +162,13 @@ end
 local function selectPoint(event)
 
     if event.phase == "began" then
+        --If a point has already been plotted, then remove it
+        print(axisGroup:selectedAxisRemove())
         axisGroup:selectedAxis(event.xStart, event.yStart)
         return true
     elseif event.phase == 'moved' then
         --If a point has already been plotted, then remove it
-        if axisGroup.selected.point then 
-            axisGroup.selected.point:removeSelf()
-        end
+        axisGroup:selectedAxisRemove()
         axisGroup:selectedAxis(event.x, event.y)
     elseif event.phase == 'ended' then
         local pnt = {x=event.x, y=event.y}
