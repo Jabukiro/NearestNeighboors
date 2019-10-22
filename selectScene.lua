@@ -260,10 +260,36 @@ end
 -- axisGroup event function listeners
 -- -----------------------------------------------------------------------------------
 
+-- Forever grow shrinking behaviour
+local grow
+local function shrink(ref)
+    print('shrinking')
+    transition.scaleTo( axisGroup.selected.point, {xScale = 1, yScale=1, time=2000, onComplete=grow} )
+end
+grow = function (ref)
+    print('growing')
+    transition.scaleTo( axisGroup.selected.point, {xScale = 2, yScale=2, time=2000, onComplete=shrink} )
+end
+
+local function growShrinkRemove()
+    --Cancel shrinkng and growing on selected point.
+    if axisGroup.selected.point.growShrink then
+        transition.cancel(axisGroup.selected.point)
+        axisGroup.selected.point:removeEventListener('touch', grow)
+        axisGroup.selected.point:removeEventListener('touch', shrink)
+        grow = nil
+        shrink = nil
+        axisGroup.selected.point.growShrink = nil
+        return true
+    end
+    return false
+end
+
 local function selectPoint(event)
 
     if event.phase == "began" then
         --If a point has already been plotted, then remove it
+        growShrinkRemove()
         axisGroup:selectedAxisRemove()
         axisGroup:selectedAxis(event.xStart, event.yStart)
         return true
@@ -280,19 +306,34 @@ local function selectPoint(event)
         axisGroup:classify()
     end
 end
+
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
 
 function scene:create( event )
-    
+    print('creating scene')
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
     axisGroup:makexyAxis(sceneGroup, data)
-    
     axisGroup.background:addEventListener( "touch", selectPoint )
+    --center of background to plot initial selected point
+    local coordinates = {
+        x=(axisGroup.background.path.x4-axisGroup.background.path.x1)/2,
+        y=axisGroup.yOffset+(axisGroup.background.path.y2-axisGroup.background.path.y1)/2
+    }
+
+    print('Initial x/y of selected',coordinates.x, coordinates.y)
+    axisGroup:selectedAxisRemove()
+    axisGroup:selectedAxis(coordinates.x, coordinates.y)
+    axisGroup:plotPoints(coordinates, 'selected')
+    axisGroup.selected.point.growShrink = true
+    axisGroup.selected.point:addEventListener( "touch", grow )
+    axisGroup.selected.point:addEventListener( "touch", shrink )
+    grow()
+
 end
 
 
@@ -337,12 +378,9 @@ function scene:destroy( event )
 
 end
 
-
-
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
 scene:addEventListener( "hide", scene )
 scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
-
 return scene
