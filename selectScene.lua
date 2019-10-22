@@ -56,32 +56,33 @@ function axisGroup:makexyAxis(group, data)
     --Returns reference to said group
 
     group:insert(self)
-
+    self.yOffset = 200
     self.coordinates = {}
     self.selected = {}
     self.xmaxMargin = 10
     self.yminMargin = 50
+    self.ymaxMargin = 25
     
     self.xmin = 50
     self.coordinates.xmin = self.xmin
 
-    self.ymax = 10
+    self.ymax = 10 + self.yOffset
     self.coordinates.ymax = self.ymax
 
     self.xmax = fullw - self.xmaxMargin
     self.coordinates.xmax = (self.xmax-30)
 
-    self.ymin = centerY - self.yminMargin
+    self.ymin = centerY - self.yminMargin + self.yOffset
     self.coordinates.ymin = self.ymin
 
     self.xLabel = data.xlabel
     self.yLabel = data.yLabel
     self.background = display.newRect(self, 0,0,0,0)
     self.background:setFillColor( 0.8 )
-    self.background.path.x1, self.background.path.y1 = 0,0
-    self.background.path.x2, self.background.path.y2 = 0,centerY
-    self.background.path.x3, self.background.path.y3 = fullw,centerY
-    self.background.path.x4, self.background.path.y4 = fullw,0
+    self.background.path.x1, self.background.path.y1 = 0,self.yOffset
+    self.background.path.x2, self.background.path.y2 = 0,centerY+self.yOffset
+    self.background.path.x3, self.background.path.y3 = fullw,centerY+self.yOffset
+    self.background.path.x4, self.background.path.y4 = fullw,self.yOffset
     --Below's function will place the data points on the axis.
 
     
@@ -99,7 +100,7 @@ function axisGroup:makexyAxis(group, data)
     --xmid:setStrokeColor( 0, 0, 1 )
 
     --Yaxis line with a max and a mid line
-    self.yaxis = display.newLine(axisGroup, self.xmin, centerY, self.xmin, self.ymax)
+    self.yaxis = display.newLine(axisGroup, self.xmin, self.ymin+self.yminMargin, self.xmin, self.ymax)
     self.yaxis.strokeWidth = self.axisWidth
     self.yaxis:setStrokeColor( 0, 0, 0 )
     --local ymax = display.newLine(axisGroup, axis.left-5, axis.top, axis.left, axis.top)
