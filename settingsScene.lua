@@ -1,6 +1,28 @@
+-- -----------------------------------------------------------------------------------
+-- settingsScene.lua
+-- Serve as the overlay scene that will show when settings button pressed
+-- Will return chosen k value and use of weight or not to parent 'options' scene.
+-- -----------------------------------------------------------------------------------
+
 local composer = require( "composer" )
 
 local scene = composer.newScene()
+
+-- Screen framing
+local centerX  = display.contentCenterX
+local centerY  = display.contentCenterY
+local fullw    = display.actualContentWidth 
+local fullh    = display.actualContentHeight
+local left     = centerX - fullw/2
+local top      = centerY - fullh/2
+local right    = (centerX + fullw/2)
+local bottom   = centerY + fullh/2
+
+--serve as reference to parrent
+local options
+
+--Variable to 'return'(via composer) to main scene.
+local settings
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -19,10 +41,18 @@ function scene:create( event )
 
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
-
-    local rect = display.newRect( 160, 240, 200, 200 )
-    -- Insert rectangle into "sceneGroup"
-    sceneGroup:insert( rect )
+    options = event.parent
+    local paint = {
+        type = "gradient",
+        color1 = { 0,0,0,1 },
+        color2 = { 0,0,0,0.6 },
+        direction = "right"
+    }
+     
+    sceneGroup.rect = display.newRect( sceneGroup, centerX, centerY, fullw-100, fullh-100 )
+    sceneGroup.rect:setFillColor( 0,0,0,1 )
+    sceneGroup.rect.stroke = paint
+    sceneGroup.rect.strokeWidth = 200
 end
 
 

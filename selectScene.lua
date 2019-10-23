@@ -10,6 +10,7 @@ local classify = require("classify")
 local scene = composer.newScene()
 local confTable = loadsave.loadTable('config.json')
 local data = composer.getVariable('data')
+local settings = composer.getVariable('settings')
 
 local centerX  = display.contentCenterX
 local centerY  = display.contentCenterY
@@ -350,6 +351,15 @@ local function settingsSelect(event)
         --Nothinkg to do
     elseif event.phase == 'ended' then
         transition.scaleTo( options.settings, {xScale=1, yScale=1, time=1} )
+        local options = {
+            isModal = true,
+            effect = "slideRight",
+            time = 500,
+            params = {
+                sampleVar = "my sample variable"
+            }
+        }
+        composer.showOverlay( "settingsScene", options )
     end
 end
 local function helpSelect(event)
