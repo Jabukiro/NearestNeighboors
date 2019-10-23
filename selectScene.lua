@@ -52,7 +52,7 @@ function axisGroup:plotPoints(coordinates, option, locData)
                 filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
                 self.points[i] = display.newImageRect( self, filename, 60, 60 )
                 self.points[i].x = coordinates[i].x
-                self.points[i].y = coordinates[i].y
+                self.points[i].y = coordinates[i].y 
             end
         end
 end
@@ -62,7 +62,7 @@ function axisGroup:makexyAxis(group, data)
     --Returns reference to said group
 
     group:insert(self)
-    self.yOffset = 200
+    self.yOffset = 130
     self.coordinates = {}
     self.selected = {}
     self.xmaxMargin = 10
@@ -72,14 +72,14 @@ function axisGroup:makexyAxis(group, data)
     self.xmin = 50
     self.coordinates.xmin = self.xmin
 
-    self.ymax = 10 + self.yOffset
+    self.ymax = 30 + self.yOffset
     self.coordinates.ymax = self.ymax
 
     self.xmax = fullw - self.xmaxMargin
     self.coordinates.xmax = (self.xmax-30)
 
     self.ymin = centerY - self.yminMargin + self.yOffset
-    self.coordinates.ymin = self.ymin
+    self.coordinates.ymin = self.ymin +20
 
     self.xLabel = data.xlabel
     self.yLabel = data.yLabel
@@ -276,6 +276,7 @@ grow = function (ref)
 end
 
 local function growShrinkRemove()
+    print('grow shrink remove')
     --Cancel shrinkng and growing on selected point.
     if axisGroup.selected.point and axisGroup.selected.point.growShrink then
         transition.cancel(axisGroup.selected.point)
@@ -319,7 +320,48 @@ local options = display.newGroup()
 
 
 function options:render()
---Define area
+    --Define group area
+    self.x1 = 20
+    self.y1 = 20
+    self.x2 = 0
+    self.y2 = 100
+    self.x3 = fullw
+    self.y3 = 100
+    self.x4 = fullw
+    self.y4 = 0
+
+    --Load Settings logo
+    self.settings = display.newImageRect(self, 'settings.png', 100, 100)
+    self.settings.x = self.y2/2 + self.x1
+    self.settings.y = self.y2/2 + self.y1
+
+    --Load help Logo 42*78 w/h ratio
+    self.help = display.newImageRect(self, 'help.png', 100*(42/78), 100)
+    self.help.x = self.x3 - 100*(42/78)/2 - self.x1
+    self.help.y = self.y2/2 + self.y1
+end
+
+local function settingsSelect(event)
+    if event.phase == "began" then
+        --Slitghly shrink an object
+        transition.scaleTo( options.settings, {xScale=0.8, yScale=0.8, time=1} )
+        return true
+    elseif event.phase == 'moved' then
+        --Nothinkg to do
+    elseif event.phase == 'ended' then
+        transition.scaleTo( options.settings, {xScale=1, yScale=1, time=1} )
+    end
+end
+local function helpSelect(event)
+    if event.phase == "began" then
+        --Slitghly shrink an object
+        transition.scaleTo( options.help, {xScale=0.8, yScale=0.8, time=1} )
+        return true
+    elseif event.phase == 'moved' then
+        --Nothinkg to do
+    elseif event.phase == 'ended' then
+        transition.scaleTo( options.help, {xScale=1, yScale=1, time=1} )
+    end
 end
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
@@ -345,6 +387,9 @@ function scene:create( event )
         alpha = {0,1,0,1}
     }
     --loadHeader(headerOptions, color)
+    options:render()
+    options.settings:addEventListener('touch', settingsSelect)
+    options.help:addEventListener('touch', helpSelect)
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
     axisGroup:makexyAxis(sceneGroup, data)
@@ -354,8 +399,6 @@ function scene:create( event )
         x=(axisGroup.background.path.x4-axisGroup.background.path.x1)/2,
         y=axisGroup.yOffset+(axisGroup.background.path.y2-axisGroup.background.path.y1)/2
     }
-
-    print('Initial x/y of selected',coordinates.x, coordinates.y)
     axisGroup:selectedAxisRemove()
     axisGroup:selectedAxis(coordinates.x, coordinates.y)
     axisGroup:plotPoints(coordinates, 'selected')
