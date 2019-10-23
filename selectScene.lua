@@ -47,7 +47,7 @@ function axisGroup:plotPoints(coordinates, option, locData)
             self.points = {}
             local locData = locData or data
 
-            for i=locData.length, 1, -1 do
+            for i=1, locData.length, 1 do
                 --class 'a' red dots, class 'b' blue dots
                 filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
                 self.points[i] = display.newImageRect( self, filename, 60, 60 )
@@ -198,7 +198,7 @@ function axisGroup:showWinners(k)
     
     outRange = nil
     --Create lines
-    for i=1, k, 1 do
+    for i=k, 1, -1 do
         
         self.selected.result[i] = {}
         --Below will determine how strong the colour will be
@@ -312,6 +312,16 @@ local function selectPoint(event)
 end
 
 -- -----------------------------------------------------------------------------------
+-- Options Group.
+-- -----------------------------------------------------------------------------------
+
+local options = display.newGroup()
+
+
+function options:render()
+--Define area
+end
+-- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
 
@@ -334,7 +344,7 @@ function scene:create( event )
         shadow = { r=1, g=1, b=1 },
         alpha = {0,1,0,1}
     }
-    loadHeader(headerOptions, color)
+    --loadHeader(headerOptions, color)
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
     axisGroup:makexyAxis(sceneGroup, data)
