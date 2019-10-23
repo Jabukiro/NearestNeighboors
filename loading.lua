@@ -27,49 +27,24 @@ composer.setVariable("data", data)
 
 local sceneNumber = 0
 
-local message = "A wise man once said:\n\n ...Machine Learning is like teenage sex. Everyone talks about it, nobody really knows how to do it, everyone thinks everybody else is doing it, so everyone claims they're doing it."
-
 local height = display.actualContentHeight
 local width = display.actualContentWidth
 
-local function loadQuote(group)
-    --Options for our little greeting message
-    --Will run once. when the app is first used.
-    messageOptions = {
-        parent = group,
-        text = message,
-        x=display.contentCenterX,
-        y=display.contentCenterY,
-        height = height*0.8,
-        width = width*0.8,
-        font = 'Helvetica',
-        fontSize =90
-    }
-    local messageText = display.newEmbossedText( messageOptions )
-    messageText:setFillColor( 0.8 )
- 
-    local color = 
-    {
-        highlight = { r=1, g=1, b=1 },
-        shadow = { r=0.3, g=0.3, b=0.3 }
-    }
-    messageText:setEmbossColor( color )
-end
-
 local function loadLogo(group)
-    logoOpts = {
+    local logoOpts = {
         parent = group,
         filename = 'logo.png',
         width = width,
         height = 100
     }
-    logoImg = display.newImageRect(group, 'logo.png', width*0.9, (width*0.9)*(55/258))
-    logoImg.x, logoImg.y = display.contentCenterX, display.contentCenterY
+    group.logoImg = display.newImageRect(group, 'logo.png', width*0.9, (width*0.9)*(55/258))
+    group.logoImg.x, group.logoImg.y = display.contentCenterX, display.contentCenterY
 
 end
 
 local function continueBtnHandle(event)
     if (event.phase == 'ended') then
+        loadsave.saveTable(confTable, 'config.json')
         composer.gotoScene( "selectScene")
     end
 end
@@ -77,7 +52,7 @@ end
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
 -- -----------------------------------------------------------------------------------
-
+local button1
 function scene:create( event )
 
     -- Code here runs when the scene is first created but has not yet appeared on screen
@@ -87,16 +62,11 @@ function scene:create( event )
 
     --Will display the logo if app has been opened before
     --Or messae about ML if not.
-    if confTable.openedBefore then
-        loadLogo(sceneGroup)
-        print(confTable.openedBefore)
-    else 
-        loadQuote(sceneGroup)
-        confTable.openedBefore = true
-    end
+    loadLogo(sceneGroup)
+    print(confTable.openedBefore)
 
     
-    local button1 = widget.newButton(
+    button1 = widget.newButton(
     {
         id = "continueBtn",
         label = "Continue",
@@ -114,8 +84,6 @@ function scene:create( event )
 )
     button1._view._label.size = 60
     button1._view._label.color = {1,1,1}
-
-    print(height*0.9, width)
 end
 
 
@@ -146,7 +114,9 @@ function scene:hide( event )
 
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
-
+        sceneGroup.logoImg:removeSelf()
+        sceneGroup.logoImg = nil
+        button1:removeSelf()
     end
 end
 
