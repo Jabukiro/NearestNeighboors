@@ -22,6 +22,12 @@ local bottom   = centerY + fullh/2
 
 local axisGroup = display.newGroup()
 
+local function loadHeader(options, color)
+
+    local headertext = display.newEmbossedText( options )
+    headertext:setFillColor( 0,1,0,1)
+    headertext:setEmbossColor( color )
+end
 function axisGroup:plotPoints(coordinates, option, locData)
     --Use image as dots made with display.newCircle() look like polygons
     --plots different image based on class. Finds it in locData
@@ -41,7 +47,7 @@ function axisGroup:plotPoints(coordinates, option, locData)
             self.points = {}
             local locData = locData or data
 
-            for i=1, locData.length, 1 do
+            for i=locData.length, 1, -1 do
                 --class 'a' red dots, class 'b' blue dots
                 filename = (data[i].class == 'a' and 'redDot.png') or 'blueDot.png'
                 self.points[i] = display.newImageRect( self, filename, 60, 60 )
@@ -172,12 +178,11 @@ end
 function axisGroup:showWinners(k)
     --Will simply plot lines with varying colours
     --to the nearest k-neighboors
-    print('showing winners...')
-
+    print('showing winners of selected point x/y:')
+    print(self.selected.point.x, self.selected.point.y)
     self.selected.result = {}
     local filename
     local x,y = 0,0
-    print(self.sortedData.result.winner)
 
     outRange = {
         xmin = self.coordinates.xmin,
@@ -196,7 +201,6 @@ function axisGroup:showWinners(k)
     for i=1, k, 1 do
         
         self.selected.result[i] = {}
-        print(self.sortedData.coordinates[i].x, self.sortedData.coordinates[i].y)
         --Below will determine how strong the colour will be
         self.selected.result[i].axis = display.newLine(
             self,
@@ -208,14 +212,14 @@ function axisGroup:showWinners(k)
         self.selected.result[i].axis.strokeWidth = 5
 
         if self.sortedData[i].class=='a' then
-            print('class a point')
-
+            print('class a point @ x/y')
+            print(self.sortedData[i].x, self.sortedData[i].y)
             --Figure out alpha value based on relative value of point's weight vs its own class weight
             self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistA
             self.selected.result[i].axis:setStrokeColor( 1, 0, 0, self.selected.result[i].alpha )
         else 
             print('class b point')
-            
+            print(self.sortedData[i].x, self.sortedData[i].y)
             --Figure out alpha value based on relative value of point's weight vs its own class weight
             self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistB
             self.selected.result[i].axis:setStrokeColor( 0, 0, 1, self.selected.result[i].alpha )
@@ -273,7 +277,7 @@ end
 
 local function growShrinkRemove()
     --Cancel shrinkng and growing on selected point.
-    if axisGroup.selected.point.growShrink then
+    if axisGroup.selected.point and axisGroup.selected.point.growShrink then
         transition.cancel(axisGroup.selected.point)
         axisGroup.selected.point:removeEventListener('touch', grow)
         axisGroup.selected.point:removeEventListener('touch', shrink)
@@ -314,7 +318,23 @@ end
 function scene:create( event )
     print('creating scene')
     -- Code here runs when the scene is first created but has not yet appeared on screen
-
+    --Create Header
+    local headerOptions = {
+        text = 'Select a point',
+        x=centerX+100,
+        y=100,
+        height = 200,
+        width = fullw,
+        font = 'Helvetica',
+        fontSize =100
+    }
+    local color = 
+    {
+        highlight = { r=0, g=1, b=0},
+        shadow = { r=1, g=1, b=1 },
+        alpha = {0,1,0,1}
+    }
+    loadHeader(headerOptions, color)
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
     axisGroup:makexyAxis(sceneGroup, data)
