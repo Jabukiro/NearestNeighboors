@@ -8,7 +8,7 @@ local loadsave = require("loadsave")
 local classify = require("classify")
 
 local scene = composer.newScene()
-local confTable = loadsave.loadTable('config.json')
+--local confTable = loadsave.loadTable('config.json')
 local data = composer.getVariable('data')
 local settings = composer.getVariable('settings')
 
@@ -297,12 +297,12 @@ local function selectPoint(event)
         --If a point has already been plotted, then remove it
         growShrinkRemove()
         axisGroup:selectedAxisRemove()
-        axisGroup:selectedAxis(event.xStart, event.yStart)
+        --axisGroup:selectedAxis(event.xStart, event.yStart)
         return true
     elseif event.phase == 'moved' then
         --If a point has already been plotted, then remove it
         axisGroup:selectedAxisRemove()
-        axisGroup:selectedAxis(event.x, event.y)
+        --axisGroup:selectedAxis(event.x, event.y)
     elseif event.phase == 'ended' then
         local pnt = {x=event.x, y=event.y}
         -- Plot selected point
@@ -380,7 +380,7 @@ end
 function scene:create( event )
     print('creating scene')
     -- Code here runs when the scene is first created but has not yet appeared on screen
-    --Create Header
+    -- Create Header
     local headerOptions = {
         text = 'Select a point',
         x=centerX+100,
@@ -410,7 +410,7 @@ function scene:create( event )
         y=axisGroup.yOffset+(axisGroup.background.path.y2-axisGroup.background.path.y1)/2
     }
     axisGroup:selectedAxisRemove()
-    axisGroup:selectedAxis(coordinates.x, coordinates.y)
+    --axisGroup:selectedAxis(coordinates.x, coordinates.y)
     axisGroup:plotPoints(coordinates, 'selected')
     axisGroup.selected.point.growShrink = true
     axisGroup.selected.point:addEventListener( "touch", grow )
@@ -456,7 +456,6 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
-    loadsave.saveTable(confTable, 'config.json')
     -- Code here runs prior to the removal of scene's view
 
 end
