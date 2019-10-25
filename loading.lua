@@ -14,8 +14,8 @@ local loadcsv = require("loadcsv")
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 -- Preload the data here
-local confTable = loadsave.loadTable('config.json')
-path = confTable.dataFile or system.pathForFile('knn.csv', system.ResourceDirectory)
+--local confTable = loadsave.loadTable('config.json')
+path = system.pathForFile('knn.csv', system.ResourceDirectory)
 print(path)
 local file, error = io.open(path)
 local data
@@ -44,7 +44,6 @@ end
 
 local function continueBtnHandle(event)
     if (event.phase == 'ended') then
-        loadsave.saveTable(confTable, 'config.json')
         composer.gotoScene( "selectScene")
     end
 end
@@ -63,9 +62,7 @@ function scene:create( event )
     --Will display the logo if app has been opened before
     --Or messae about ML if not.
     loadLogo(sceneGroup)
-    print(confTable.openedBefore)
 
-    
     button1 = widget.newButton(
     {
         id = "continueBtn",
@@ -125,7 +122,7 @@ end
 function scene:destroy( event )
 
     local sceneGroup = self.view
-    loadsave.saveTable(confTable, 'config.json')
+
     -- Code here runs prior to the removal of scene's view
 
 end
