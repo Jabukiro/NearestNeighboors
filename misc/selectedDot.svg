@@ -9,9 +9,9 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="60"
+   height="60"
+   viewBox="0 0 15.874999 15.874999"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
@@ -25,17 +25,23 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.35"
-     inkscape:cx="-75.714286"
-     inkscape:cy="560"
+     inkscape:zoom="1"
+     inkscape:cx="16.278854"
+     inkscape:cy="101.43755"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1-1"
+     inkscape:current-layer="g923"
      showgrid="false"
      inkscape:window-width="1366"
      inkscape:window-height="706"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0"
+     showborder="true"
+     units="px" />
   <metadata
      id="metadata5">
     <rdf:RDF>
@@ -51,38 +57,23 @@
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-72.044899,-209.0801)">
     <g
-       transform="translate(-127.29613,50.944933)"
-       id="layer1-1"
-       inkscape:label="Layer 1">
-      <g
-         inkscape:export-ydpi="98.300003"
-         inkscape:export-xdpi="98.300003"
+       id="g923"
+       transform="matrix(2.6065706,0,0,2.6065707,-65.886132,-411.26537)"
+       inkscape:export-filename="C:\Users\Temp\Documents\19-2\CSP2108\NearestNeighboors\redDot.png"
+       inkscape:export-xdpi="98.300003"
+       inkscape:export-ydpi="98.300003">
+      <circle
+         r="3.0451889"
+         cy="241.03815"
+         cx="55.961857"
+         id="path880-9"
+         style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.15027297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          inkscape:export-filename="C:\Users\Temp\Documents\19-2\CSP2108\NearestNeighboors\redDot.png"
-         transform="matrix(2.6065706,0,0,2.6065707,-65.886132,-411.26537)"
-         id="g923">
-        <rect
-           style="opacity:1;fill:#00000d;fill-opacity:1;stroke:none;stroke-width:0.14503455;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect882"
-           width="13.229167"
-           height="1.8520833"
-           x="41.010418"
-           y="230.72188" />
-        <rect
-           style="opacity:1;fill:#00000d;fill-opacity:1;stroke:none;stroke-width:0.14503455;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="rect882-6"
-           width="1.8520833"
-           height="13.229167"
-           x="64.426041"
-           y="242.76042" />
-        <circle
-           style="opacity:1;fill:#00ff00;fill-opacity:1;stroke:none;stroke-width:0.65282851;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-           id="path880-9"
-           cx="66.145836"
-           cy="230.85417"
-           r="13.229167" />
-      </g>
+         inkscape:export-xdpi="98.300003"
+         inkscape:export-ydpi="98.300003" />
     </g>
   </g>
 </svg>

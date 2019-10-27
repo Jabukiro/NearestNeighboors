@@ -25,11 +25,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.8166667"
-     inkscape:cx="10.475644"
-     inkscape:cy="274.96146"
+     inkscape:zoom="1"
+     inkscape:cx="16.278854"
+     inkscape:cy="101.43755"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g923"
      showgrid="false"
      inkscape:window-width="1366"
      inkscape:window-height="706"
@@ -40,7 +40,7 @@
      fit-margin-left="0"
      fit-margin-right="0"
      fit-margin-bottom="0"
-     showborder="false"
+     showborder="true"
      units="px" />
   <metadata
      id="metadata5">
@@ -58,33 +58,22 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-41.010418,-240.1146)">
+     transform="translate(-72.044899,-209.0801)">
     <g
        id="g923"
-       transform="matrix(0.41379309,0,0,0.41379309,17.964765,85.435154)"
-       inkscape:export-filename="C:\Users\Temp\Documents\19-2\CSP2108\NearestNeighboors\blueDot.png"
+       transform="matrix(2.6065706,0,0,2.6065707,-65.886132,-411.26537)"
+       inkscape:export-filename="C:\Users\Temp\Documents\19-2\CSP2108\NearestNeighboors\redDot.png"
        inkscape:export-xdpi="98.300003"
        inkscape:export-ydpi="98.300003">
-      <rect
-         y="230.72188"
-         x="41.010418"
-         height="1.8520833"
-         width="13.229167"
-         id="rect882"
-         style="opacity:1;fill:#00000d;fill-opacity:1;stroke:none;stroke-width:0.14503455;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <rect
-         y="242.76042"
-         x="64.426041"
-         height="13.229167"
-         width="1.8520833"
-         id="rect882-6"
-         style="opacity:1;fill:#00000d;fill-opacity:1;stroke:none;stroke-width:0.14503455;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       <circle
-         r="13.229167"
-         cy="230.85417"
-         cx="66.145836"
+         r="3.0451889"
+         cy="241.03815"
+         cx="55.961857"
          id="path880-9"
-         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.65282851;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+         style="opacity:1;fill:#0000ff;fill-opacity:1;stroke:none;stroke-width:0.15027297;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         inkscape:export-filename="C:\Users\Temp\Documents\19-2\CSP2108\NearestNeighboors\redDot.png"
+         inkscape:export-xdpi="98.300003"
+         inkscape:export-ydpi="98.300003" />
     </g>
   </g>
 </svg>
