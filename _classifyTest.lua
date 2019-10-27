@@ -65,12 +65,12 @@ end
 
 
 function testClassifyClassify()
-	luaunit.assertEquals(classify.classify(kData, #kData), 'b')
+	luaunit.assertEquals(classify.classify(kData, #kData).winner, 'b')
 end
 
 function testClassifySamePoint()
 	kData[1] = {dist=0, class='b',x=2,y=2}
-	luaunit.assertEquals(classify.classify(kData, #kData), 'b')
+	luaunit.assertEquals(classify.classify(kData, #kData).winner, 'b')
 end
 
 
