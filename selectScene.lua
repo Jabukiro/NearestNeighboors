@@ -10,7 +10,6 @@ local classify = require("classify")
 local scene = composer.newScene()
 --local confTable = loadsave.loadTable('config.json')
 local data = composer.getVariable('data')
-local settings = composer.getVariable('settings')
 
 local centerX  = display.contentCenterX
 local centerY  = display.contentCenterY
@@ -123,6 +122,8 @@ function axisGroup:makexyAxis(group, data)
     -- plot points --
     --Convert to OOP
     self:plotPoints(self.coordinates, 'data')
+    --Default settings
+    self.settings = {weights=true, distance = 'euclidean', k=4}
 
 end
 function axisGroup:selectedAxisRemove()
@@ -211,18 +212,26 @@ function axisGroup:showWinners(k)
             self.sortedData.coordinates[i].y)
 
         self.selected.result[i].axis.strokeWidth = 5
-
+        
         if self.sortedData[i].class=='a' then
             print('class a point @ x/y')
             print(self.sortedData[i].x, self.sortedData[i].y)
             --Figure out alpha value based on relative value of point's weight vs its own class weight
-            self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistA
+            if self.settings and self.settings.weights then
+                self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistA
+            else
+                self.selected.result[i].alpha = 1
+            end
             self.selected.result[i].axis:setStrokeColor( 1, 0, 0, self.selected.result[i].alpha )
         else 
             print('class b point')
             print(self.sortedData[i].x, self.sortedData[i].y)
             --Figure out alpha value based on relative value of point's weight vs its own class weight
-            self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistB
+            if self.settings and self.settings.weights then
+                self.selected.result[i].alpha = self.sortedData[i].dist/self.sortedData.result.totalDistB
+            else
+                self.selected.result[i].alpha = 1
+            end
             self.selected.result[i].axis:setStrokeColor( 0, 0, 1, self.selected.result[i].alpha )
         end
     end
@@ -239,6 +248,7 @@ function axisGroup:classify()
     --self.selected.point
     --self.points
     --Implement options (second part of screen.)
+
     print('Data 1st point x/y: ',data[1].x, data[1].y)
     local point = {}
     point[1] = {x=self.selected.point.x, y=self.selected.point.y}
@@ -256,10 +266,12 @@ function axisGroup:classify()
 
     self.dataPoint = {x=outRange[1].x, y=outRange[1].y}
     --print(self.dataPoint.x, self.dataPoint.y)
-    self.sortedData = classify.main(self.dataPoint, data, 4, 'euclidean')
+    self.settings.k = (self.settings.k <= #data and self.settings.k) or #data
+    print(self.settings.k, self.settings.distance, self.settings.weights)
+    self.sortedData = classify.main(self.dataPoint, data, self.settings.k, self.settings.distance, self.settings.weights)
     point = nil
     outRange = nil
-    axisGroup:showWinners(4)
+    axisGroup:showWinners(self.settings.k)
 end
 -- -----------------------------------------------------------------------------------
 -- axisGroup event function listeners
@@ -351,12 +363,10 @@ local function settingsSelect(event)
         --Nothinkg to do
     elseif event.phase == 'ended' then
         if options.settings.overlay then
-            options.settings.settings = composer.getVariable('settings')
             transition.scaleTo( options.settings, {xScale=1, yScale=1, time=1} )
             transition.to(options.settings, {rotation = -90, time=200})
             composer.hideOverlay("slideLeft", 200)
             options.settings.overlay = false
-            print(options.settings.settings.weights, options.settings.settings.distance)
             return true
         end
         transition.scaleTo( options.settings, {xScale=1, yScale=1, time=1} )
@@ -367,7 +377,7 @@ local function settingsSelect(event)
             effect = "slideRight",
             time = 500,
             params = {
-                sampleVar = "my sample variable"
+                parent = axisGroup
             }
         }
         options.settings.overlay = true
@@ -382,8 +392,37 @@ local function helpSelect(event)
     elseif event.phase == 'moved' then
         --Nothinkg to do
     elseif event.phase == 'ended' then
+        --Help can be called from settings overlay. Close it first if opened
+        if options.help.overlay then
+            transition.scaleTo( options.help, {xScale=1, yScale=1, time=1} )
+            composer.hideOverlay("slideright", 200)
+            options.help.overlay = false
+            return true
+        end
+        if options.settings.overlay then
+            --close settings overlay. Help shown will be within settings context
+            transition.to(options.settings, {rotation = -90, time=200})
+            composer.hideOverlay("slideLeft", 200)
+        end
         transition.scaleTo( options.help, {xScale=1, yScale=1, time=1} )
+        local parameters = {
+            isModal = true,
+            effect = "slideLeft",
+            time = 500,
+            params = {
+                --will use to check if settings open and show appropriate help
+                settingsContext = options.settings.overlay
+            }
+        }
+        options.settings.overlay = false
+        options.help.overlay = true
+        composer.showOverlay( "helpScene", parameters )
     end
+end
+
+--Quit function 
+local function quitBtnHandle(event)
+    native.requestExit()
 end
 -- -----------------------------------------------------------------------------------
 -- Scene event function listeners
@@ -430,7 +469,24 @@ function scene:create( event )
     axisGroup.selected.point:addEventListener( "touch", grow )
     axisGroup.selected.point:addEventListener( "touch", shrink )
     grow()
-
+    button1 = widget.newButton(
+        {
+            id = "continueBtn",
+            label = "Quit",
+            onEvent = quitBtnHandle,
+            emboss = false,
+            -- Properties for a rounded rectangle button
+            shape = "roundedRect",
+            width = 300,
+            height = 100,
+            cornerRadius = 80,
+            fillColor = { default={1,0,0,1}, over={0,1,0,0.8} },
+            x= centerX,
+            y = fullh*0.9
+        }
+    )
+        button1._view._label.size = 60
+        button1._view._label.color = {1,1,1}
 end
 
 

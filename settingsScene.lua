@@ -19,18 +19,46 @@ local top      = centerY - fullh/2
 local right    = (centerX + fullw/2)
 local bottom   = centerY + fullh/2
 
+local sceneGroup
 --serve as reference to parrent
-local options
-
---Variable to 'return'(via composer) to main scene.
-local settings
+local parent
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
-local function quitScene()
+local function saved()
+    local rect = display.newText(sceneGroup, "Saved", centerX, bottom*0.7 )
+    rect:setFillColor( 0, 1, 0 )
+    sceneGroup:insert(rect)
+end
+
+local function textListener( event )
+ 
+    if ( event.phase == "began" ) then
+        -- User begins editing "defaultField"
+ 
+    elseif ( event.phase == "ended" or event.phase == "submitted" ) then
+        -- Output resulting text from "defaultField"
+        if event.target.text == '' then 
+            parent.settings.k = 4
+        else 
+            parent.settings.k = event.target.text +0
+        end
+        saved()
+    elseif ( event.phase == "editing" ) then
+        print( event.newCharacters )
+        print( event.oldText )
+        print( event.startPosition )
+        print( event.text )
+        if event.target.text == '' then 
+            parent.settings.k = 4
+        else 
+            parent.settings.k = event.target.text +0
+        end
+        saved()
+    end
 end
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
@@ -42,8 +70,18 @@ function scene:create( event )
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
-    local sceneGroup = self.view
-    options = event.parent
+    sceneGroup = self.view
+    parent = event.params.parent
+
+    -- Set intial checkboxes checked or unchecked
+    local euclid, manhat, cheb = false, false, false
+    if parent.settings.distance == 'euclidean' then 
+        euclid = true
+    elseif parent.settings.distance == 'manhattan' then
+        manhat = true
+    else
+        cheb = true
+    end
     local paint = {
         type = "gradient",
         color1 = { 0,0,0,1 },
@@ -56,13 +94,13 @@ function scene:create( event )
     sceneGroup.rect.stroke = paint
     sceneGroup.rect.strokeWidth = 200
     sceneGroup.rect = display.newText(sceneGroup, "SETTINGS", centerX, centerY, fullw-300, fullh-200 )
-    sceneGroup.rect = display.newText(sceneGroup, "Weights", centerX, centerY, fullw-300, fullh-360 )
+    sceneGroup.rect = display.newText(sceneGroup, "Weights", centerX, centerY, fullw-350, fullh-360 )
     sceneGroup.rect = display.newText(sceneGroup, "Distance Metrics:", centerX, centerY, fullw-300, fullh-600 )
-    sceneGroup.rect = display.newText(sceneGroup, "Euclidean", centerX, centerY, fullw-300, fullh-760 )
-    sceneGroup.rect = display.newText(sceneGroup, "Manhattan", centerX, centerY, fullw-300, fullh-960 )
-    sceneGroup.rect = display.newText(sceneGroup, "Chebychev", centerX, centerY, fullw-300, fullh-1160 )
+    sceneGroup.rect = display.newText(sceneGroup, "Euclidean", centerX, centerY, fullw-350, fullh-760 )
+    sceneGroup.rect = display.newText(sceneGroup, "Manhattan", centerX, centerY, fullw-350, fullh-960 )
+    sceneGroup.rect = display.newText(sceneGroup, "Chebychev", centerX, centerY, fullw-350, fullh-1160 )
+    sceneGroup.rect = display.newText(sceneGroup, "K-Value:", centerX, centerY, fullw-300, fullh-1400 )
     
-    local settings = {}
 
     local function onSwitchPress(event)
         local switch = event.target
@@ -70,14 +108,13 @@ function scene:create( event )
         local buttonData = switch.isOn
         if switch.id == "WeightsCheckbox" then
             --Set it to true/false
-            settings.weights = buttonData
+            parent.settings.weights = buttonData
+            saved()
         else
             --Sets the chosen distance
-        settings.distance = switch.id
-        composer.setVariable("settings", settings)
+        parent.settings.distance = switch.id
+        saved()
         end
-        local serializedJSON = json.encode(settings)
-        print(serializedJSON)
     end
 
     -- Create a group for the radio button set
@@ -88,11 +125,11 @@ function scene:create( event )
     -- Create three associated radio buttons (inserted into the same display group)
     local radioButton1 = widget.newSwitch(
     {
-        left = 100,
+        left = 125,
         top = 400,
         style = "radio",
         id = "euclidean",
-        initialSwitchState = true,
+        initialSwitchState = euclid,
         onPress = onSwitchPress
     }
     )
@@ -100,10 +137,11 @@ function scene:create( event )
  
     local radioButton2 = widget.newSwitch(
     {
-        left = 100,
+        left = 125,
         top = 500,
         style = "radio",
         id = "manhattan",
+        initialSwitchState = manhat,
         onPress = onSwitchPress
     }
     )
@@ -111,10 +149,11 @@ function scene:create( event )
 
     local radioButton3 = widget.newSwitch(
     {
-        left = 100,
+        left = 125,
         top = 600,
         style = "radio",
         id = "chebyshev",
+        initialSwitchState = cheb,
         onPress = onSwitchPress
     }
     )
@@ -122,16 +161,15 @@ function scene:create( event )
 
     local checkboxButton1 = widget.newSwitch(
         {
-            left = 100,
+            left = 125,
             top = 200,
             style = "checkbox",
             id = "WeightsCheckbox",
-            initialSwitchState = false,
+            initialSwitchState = parent.settings.weights,
             onPress = onSwitchPress
         }
     )
-    sceneGroup:insert(checkboxButton1)
-    
+    radioGroup:insert( checkboxButton1 )
 end
 
 
@@ -140,40 +178,16 @@ function scene:show( event )
 
     local sceneGroup = self.view
     local phase = event.phase
-
     if ( phase == "will" ) then
         -- Code here runs when the scene is still off screen (but is about to come on screen)
-
+        local kInput = native.newTextField( centerX-260, fullh-1080, 200, 80 )
+        sceneGroup:insert(kInput)
+        kInput.inputType = "number"
+        kInput.placeholder = '4'
+        kInput:addEventListener( "userInput", textListener )
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
-
     end
-end
-
-
--- hide()
-function scene:hide( event )
-
-    local sceneGroup = self.view
-    local phase = event.phase
-    local parent = event.parent  --reference to the parent scene object
-    if ( phase == "will" ) then
-        -- Code here runs when the scene is on screen (but is about to go off screen)
-
-    elseif ( phase == "did" ) then
-        -- Code here runs immediately after the scene goes entirely off screen
-
-    end
-end
-
-
-
--- destroy()
-function scene:destroy( event )
-
-    local sceneGroup = self.view
-    -- Code here runs prior to the removal of scene's view
-
 end
 
 
@@ -182,7 +196,5 @@ end
 -- -----------------------------------------------------------------------------------
 scene:addEventListener( "create", scene )
 scene:addEventListener( "show", scene )
-scene:addEventListener( "hide", scene )
-scene:addEventListener( "destroy", scene )
 -- -----------------------------------------------------------------------------------
 return scene

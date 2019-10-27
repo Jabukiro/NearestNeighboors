@@ -113,7 +113,7 @@ function classify.orderedInsert(sortedData, insert)
 	end
 end
 
-function classify.classify(kData, k)
+function classify.classify(kData, k, weights)
 	print('classifying data...')
 	--Returns class that wins the weighted popular vote
 	--Distance is used to give weight to each point
@@ -146,6 +146,17 @@ function classify.classify(kData, k)
 	end
 	result.totalDistA = 1/w_a
 	result.totalDistB = 1/w_b
+	if not weights then
+		--Use weights
+		if a==b then
+			--Randorm decision Needed
+			result.winner = 'a'
+			print('Level 2 tie. Class a always returned')
+		else
+			result.winner = (a>b and 'a') or (b>a and 'b') --Will return name of class that is most present, since weighted score is the same.
+			return result
+		end
+	end
 	if w_a == w_b then 
 		if a==b then
 			--Randorm decision Needed
@@ -161,7 +172,7 @@ function classify.classify(kData, k)
 
 end
 
-function classify.main(selected, data, k, metric)
+function classify.main(selected, data, k, metric, weights)
 	--Only function that needs to be called by the app.
 
 	--Metric - Weights - OrderedInsert
@@ -189,7 +200,9 @@ function classify.main(selected, data, k, metric)
 	elseif metric == 'chebyshev' then
 		metricFun = classify.chebyshev
 	else
-		error('Wrong metric choice given: "'.. metric .. '"')
+		print('Wrong metric choice given: "'.. metric .. '"')
+		--revert to default
+		metricFun = 'euclidean'
 	end
 
 	local point_class
@@ -201,7 +214,7 @@ function classify.main(selected, data, k, metric)
 		sortedData = classify.orderedInsert(sortedData, point_class) --Insert so that the list is in an Ascending manner.
 	end
 
-	sortedData.result = classify.classify(sortedData, k)
+	sortedData.result = classify.classify(sortedData, k, weights)
 	return sortedData
 
 end
