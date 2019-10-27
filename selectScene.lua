@@ -340,8 +340,6 @@ function options:render(group)
     self.help = display.newImageRect(self, 'help.png', 100*(42/78), 100)
     self.help.x = self.x3 - 100*(42/78)/2 - self.x1
     self.help.y = self.y2/2 + self.y1
-    
-    group:insert(self.settings)
 end
 
 local function settingsSelect(event)
@@ -352,8 +350,19 @@ local function settingsSelect(event)
     elseif event.phase == 'moved' then
         --Nothinkg to do
     elseif event.phase == 'ended' then
+        if options.settings.overlay then
+            options.settings.settings = composer.getVariable('settings')
+            transition.scaleTo( options.settings, {xScale=1, yScale=1, time=1} )
+            transition.to(options.settings, {rotation = -90, time=200})
+            composer.hideOverlay("slideLeft", 200)
+            options.settings.overlay = false
+            print(options.settings.settings.weights, options.settings.settings.distance)
+            return true
+        end
         transition.scaleTo( options.settings, {xScale=1, yScale=1, time=1} )
-        local options = {
+
+        transition.to(options.settings, {rotation = 90, time=500})
+        local parameters = {
             isModal = true,
             effect = "slideRight",
             time = 500,
@@ -361,7 +370,8 @@ local function settingsSelect(event)
                 sampleVar = "my sample variable"
             }
         }
-        composer.showOverlay( "settingsScene", options )
+        options.settings.overlay = true
+        composer.showOverlay( "settingsScene", parameters )
     end
 end
 local function helpSelect(event)

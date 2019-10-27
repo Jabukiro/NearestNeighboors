@@ -51,7 +51,7 @@ function scene:create( event )
         direction = "right"
     }
      
-    sceneGroup.rect = display.newRect( sceneGroup, centerX, centerY, fullw-100, fullh-100 )
+    sceneGroup.rect = display.newRect( sceneGroup, centerX, centerY, fullw-100, fullh-130 )
     sceneGroup.rect:setFillColor( 0,0,0,1 )
     sceneGroup.rect.stroke = paint
     sceneGroup.rect.strokeWidth = 200
