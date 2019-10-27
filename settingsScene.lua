@@ -3,8 +3,9 @@
 -- Serve as the overlay scene that will show when settings button pressed
 -- Will return chosen k value and use of weight or not to parent 'options' scene.
 -- -----------------------------------------------------------------------------------
-
+local widget = require("widget")
 local composer = require( "composer" )
+local json = require ("json")
 
 local scene = composer.newScene()
 
@@ -29,7 +30,8 @@ local settings
 -- the scene is removed entirely (not recycled) via "composer.removeScene()"
 -- -----------------------------------------------------------------------------------
 
-
+local function quitScene()
+end
 -- -----------------------------------------------------------------------------------
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
@@ -53,6 +55,83 @@ function scene:create( event )
     sceneGroup.rect:setFillColor( 0,0,0,1 )
     sceneGroup.rect.stroke = paint
     sceneGroup.rect.strokeWidth = 200
+    sceneGroup.rect = display.newText(sceneGroup, "SETTINGS", centerX, centerY, fullw-300, fullh-200 )
+    sceneGroup.rect = display.newText(sceneGroup, "Weights", centerX, centerY, fullw-300, fullh-360 )
+    sceneGroup.rect = display.newText(sceneGroup, "Distance Metrics:", centerX, centerY, fullw-300, fullh-600 )
+    sceneGroup.rect = display.newText(sceneGroup, "Euclidean", centerX, centerY, fullw-300, fullh-760 )
+    sceneGroup.rect = display.newText(sceneGroup, "Manhattan", centerX, centerY, fullw-300, fullh-960 )
+    sceneGroup.rect = display.newText(sceneGroup, "Chebychev", centerX, centerY, fullw-300, fullh-1160 )
+    
+    local settings = {}
+
+    local function onSwitchPress(event)
+        local switch = event.target
+        print("Switch with ID '"..switch.id.."' is on: "..tostring(switch.isOn))
+        local buttonData = switch.isOn
+        if switch.id == "WeightsCheckbox" then
+            --Set it to true/false
+            settings.weights = buttonData
+        else
+            --Sets the chosen distance
+        settings.distance = switch.id
+        composer.setVariable("settings", settings)
+        end
+        local serializedJSON = json.encode(settings)
+        print(serializedJSON)
+    end
+
+    -- Create a group for the radio button set
+    local radioGroup = display.newGroup()
+
+    sceneGroup:insert(radioGroup)
+
+    -- Create three associated radio buttons (inserted into the same display group)
+    local radioButton1 = widget.newSwitch(
+    {
+        left = 100,
+        top = 400,
+        style = "radio",
+        id = "euclidean",
+        initialSwitchState = true,
+        onPress = onSwitchPress
+    }
+    )
+    radioGroup:insert( radioButton1 )
+ 
+    local radioButton2 = widget.newSwitch(
+    {
+        left = 100,
+        top = 500,
+        style = "radio",
+        id = "manhattan",
+        onPress = onSwitchPress
+    }
+    )
+    radioGroup:insert( radioButton2 )
+
+    local radioButton3 = widget.newSwitch(
+    {
+        left = 100,
+        top = 600,
+        style = "radio",
+        id = "chebyshev",
+        onPress = onSwitchPress
+    }
+    )
+    radioGroup:insert( radioButton3 )
+
+    local checkboxButton1 = widget.newSwitch(
+        {
+            left = 100,
+            top = 200,
+            style = "checkbox",
+            id = "WeightsCheckbox",
+            initialSwitchState = false,
+            onPress = onSwitchPress
+        }
+    )
+    sceneGroup:insert(checkboxButton1)
+    
 end
 
 
@@ -77,7 +156,7 @@ function scene:hide( event )
 
     local sceneGroup = self.view
     local phase = event.phase
-
+    local parent = event.parent  --reference to the parent scene object
     if ( phase == "will" ) then
         -- Code here runs when the scene is on screen (but is about to go off screen)
 
@@ -86,6 +165,7 @@ function scene:hide( event )
 
     end
 end
+
 
 
 -- destroy()
