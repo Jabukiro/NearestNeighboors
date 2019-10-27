@@ -320,7 +320,7 @@ end
 local options = display.newGroup()
 
 
-function options:render()
+function options:render(group)
     --Define group area
     self.x1 = 20
     self.y1 = 20
@@ -340,6 +340,8 @@ function options:render()
     self.help = display.newImageRect(self, 'help.png', 100*(42/78), 100)
     self.help.x = self.x3 - 100*(42/78)/2 - self.x1
     self.help.y = self.y2/2 + self.y1
+    
+    group:insert(self.settings)
 end
 
 local function settingsSelect(event)
@@ -396,12 +398,14 @@ function scene:create( event )
         shadow = { r=1, g=1, b=1 },
         alpha = {0,1,0,1}
     }
-    --loadHeader(headerOptions, color)
-    options:render()
-    options.settings:addEventListener('touch', settingsSelect)
-    options.help:addEventListener('touch', helpSelect)
     -- Assign "self.view" to local variable "sceneGroup" for easy reference
     local sceneGroup = self.view
+    
+    --loadHeader(headerOptions, color)
+    options:render(sceneGroup)
+    options.settings:addEventListener('touch', settingsSelect)
+    options.help:addEventListener('touch', helpSelect)
+    
     axisGroup:makexyAxis(sceneGroup, data)
     axisGroup.background:addEventListener( "touch", selectPoint )
     --center of background to plot initial selected point
