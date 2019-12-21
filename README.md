@@ -21,15 +21,12 @@ The settings logos were based on the following initial designs:
 Features needed still: 
 
 1. Settings to chose to do unitary or non unitary weights
-2. Chose which distance measure. Euclidean, Manhattan, chebychev
-2. Help menu. It can just be a brief explanation of what the app is and does
 
-Implementation:
+Known Bugs:
 
-1. Settings will do in the settingsScene.lua. It has already been implemented as an overlay scene
+1. Return to main scene(selectScene), after directly switching from settings scene to help scene(Shows context dependent help for settings),
 
-meaning the scene will be on top of the main scene. Simply put a checkbox for 'Use weighting'
+causes main scene to become unresponsive.
 
-2. The second setting is 'Distance' and will be a choice between the thre mentioned distance
-3. All settings should be saved in 'settings' variable and shared using composer.setVariable
+#####Likely Reason: Reference to main scene might be lost causing event listeners to not work properly. Pass reference to main selection scene. 
 
