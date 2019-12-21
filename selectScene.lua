@@ -411,6 +411,7 @@ local function helpSelect(event)
             time = 500,
             params = {
                 --will use to check if settings open and show appropriate help
+                parent = axisGroup
                 settingsContext = options.settings.overlay
             }
         }
