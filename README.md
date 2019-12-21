@@ -28,5 +28,4 @@ Known Bugs:
 
 causes main scene to become unresponsive.
 
-#####Likely Reason: Reference to main scene might be lost causing event listeners to not work properly. Pass reference to main selection scene. 
-
+#####Possible solution: Reference to main scene might be lost causing event listeners to not work properly. Pass reference to main selection scene.
